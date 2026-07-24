@@ -15,6 +15,12 @@ public class ClientEventListeners {
         }
     }
     @SubscribeEvent
+    public static void onEntityLeaveLevelEvent(EntityLeaveLevelEvent event) {
+        if(event.getLevel().isClientSide() && event.getEntity() instanceof CTSEntity<?, ?> entity) {
+            CTSManager.removeEntity(entity);
+        }
+    }
+    @SubscribeEvent
     public static void onClientTickEvent(ClientTickEvent.Pre event) {
         CTSManager.clientTickUpdate();
     }
