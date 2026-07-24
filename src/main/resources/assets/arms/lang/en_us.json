@@ -1,0 +1,13 @@
+{
+  "itemGroup.arms": "Example Mod Tab",
+  "block.arms.example_block": "Example Block",
+  "item.arms.example_item": "Example Item",
+
+  "arms.configuration.title": "Arms Configs",
+  "arms.configuration.section.arms.common.toml": "Arms Configs",
+  "arms.configuration.section.arms.common.toml.title": "Arms Configs",
+  "arms.configuration.items": "Item List",
+  "arms.configuration.logDirtBlock": "Log Dirt Block",
+  "arms.configuration.magicNumberIntroduction": "Magic Number Text",
+  "arms.configuration.magicNumber": "Magic Number"
+}
