@@ -21,6 +21,10 @@ public class Skeleton {
 
     }
 
+    public int getBoneCount() {
+        return bones.length;
+    }
+
 
 
 
@@ -28,7 +32,7 @@ public class Skeleton {
     public static class Builder {
         private Set<BoneId> occupiedBoneIds = new HashSet<>();
         private List<Bone> bones = new ArrayList<>();
-        public Builder bone(BoneId id, @Nullable BoneId parent, Vec3 pivot, Transformation3x3 initial) {
+        public Builder bone(BoneId id, @Nullable BoneId parent, Vec3 pivot, Transform initial) {
             if(occupiedBoneIds.contains(id)) {
                 LogUtil.getLogger().warn("Tried to register bone with id thats already registered, ignoring...");
                 return this;
