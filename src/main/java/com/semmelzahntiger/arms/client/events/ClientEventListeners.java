@@ -5,6 +5,7 @@ import com.semmelzahntiger.arms.core.cts.CTSManager;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
 public class ClientEventListeners {
 
