@@ -3,6 +3,9 @@
   "package": "com.semmelzahntiger.arms.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
+  "client": [
+    "EntityRenderDispatcherMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

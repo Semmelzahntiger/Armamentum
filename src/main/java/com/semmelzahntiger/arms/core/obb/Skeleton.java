@@ -1,6 +1,5 @@
 package com.semmelzahntiger.arms.core.obb;
 
-import com.semmelzahntiger.arms.core.obb.math.TopoSort;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
@@ -46,6 +45,9 @@ public class Skeleton {
     }
     public Part[] getPartOfBoneId(BoneId id) {
         return partArray[getIndexOfBoneId(id)];
+    }
+    public Part[] getPartOfIndex(int index) {
+        return partArray[index];
     }
 
     public static class Builder {

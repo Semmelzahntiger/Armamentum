@@ -1,7 +1,4 @@
-package com.semmelzahntiger.arms.core.obb.math;
-
-import com.semmelzahntiger.arms.core.obb.Bone;
-import com.semmelzahntiger.arms.core.obb.BoneId;
+package com.semmelzahntiger.arms.core.obb;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

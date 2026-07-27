@@ -46,6 +46,8 @@ neoForge {
         minecraftVersion = project.parchment_minecraft_version
     }
 
+
+
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -107,6 +109,10 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
+    unitTest {
+        enable()
+        testedMod = mods.arms
+    }
 }
 
 // Sets up a dependency configuration called 'localRuntime'.
@@ -115,11 +121,16 @@ neoForge {
 // "optional", meaning it will not be pulled by dependents of this mod.
 configurations {
     runtimeClasspath.extendsFrom localRuntime
+    testImplementation.extendsFrom implementation
+    testRuntimeOnly.extendsFrom runtimeOnly
 }
 
 dependencies {
     // Source: https://mvnrepository.com/artifact/junit/junit
     testImplementation("junit:junit:4.13.2")
+    // Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    testImplementation("org.joml:joml:1.10.5")
+    testImplementation("org.slf4j:slf4j-api:2.0.9")
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"

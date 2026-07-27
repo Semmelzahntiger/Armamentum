@@ -3,7 +3,6 @@ package com.semmelzahntiger.arms.core.obb;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.TestOnly;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
@@ -25,7 +24,13 @@ public class Pose {
         this.skeleton = skeleton;
         int count = skeleton.getBoneCount();
         rotations = new Matrix3f[count];
+        for (int i = 0; i < rotations.length; i++) {
+            rotations[i] = new Matrix3f();
+        }
         translations = new Vec3[count];
+        for (int i = 0; i < translations.length; i++) {
+            translations[i] = Vec3.ZERO;
+        }
         worldRotationCache = new Matrix3f[count];
         worldPositionCache = new Vec3[count];
     }
@@ -41,13 +46,24 @@ public class Pose {
         translations[idx] = translation;
         cacheDirty = true;
     }
+    public void addRotation(BoneId boneId, Matrix3f rotation) {
+        int idx = skeleton.getIndexOfBoneId(boneId);
+        rotations[idx] = rotations[idx].mul(rotation);
+        cacheDirty = true;
+    }
+    public void addTranslation(BoneId boneIndex, Vec3 translation) {
+        int idx = skeleton.getIndexOfBoneId(boneIndex);
+        translations[idx] = translations[idx].add(translation);
+        cacheDirty = true;
+    }
 
-    public void ensureCache() {
+    public void verifyCache() {
         if (cacheDirty) {
             calculateCache();
             cacheDirty = false;
         }
     }
+
 
     private void calculateCache() {
         Bone[] bones = skeleton.getBones();
@@ -83,14 +99,14 @@ public class Pose {
         return getWorldRotationOf(skeleton.getIndexOfBoneId(boneId));
     }
     public Matrix3f getWorldRotationOf(int boneIndex) {
-        ensureCache();
+        verifyCache();
         return worldRotationCache[boneIndex];
     }
     public Vec3 getWorldPositionOf(BoneId boneId) {
        return getWorldPositionOf(skeleton.getIndexOfBoneId(boneId));
     }
     public Vec3 getWorldPositionOf(int boneIndex) {
-        ensureCache();
+        verifyCache();
         return worldPositionCache[boneIndex];
     }
 
@@ -98,7 +114,7 @@ public class Pose {
        return getActualWorldPositionOf(skeleton.getIndexOfBoneId(boneId), worldPos);
     }
     public Vec3 getActualWorldPositionOf(int boneIndex, Vec3 worldPos) {
-        ensureCache();
+        verifyCache();
         return worldPositionCache[boneIndex].add(worldPos);
     }
     public Vec3 toLocalSpaceOf(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos) {
@@ -141,6 +157,9 @@ public class Pose {
         }
         return hitPart;
     }
+    public int getBoneCount() {
+        return skeleton.getBoneCount();
+    }
     public @Nullable Part anyIntersection(Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
         Bone[] bones = skeleton.getBones();
         HitResultCache cache = new HitResultCache();
@@ -177,6 +196,60 @@ public class Pose {
         if (tFar < 0 || tNear > 1) return new HitResult(false, 0);
         return new HitResult(true, tNear);
     }
+
+    public AABB getEncapsulatingAABB(Vec3 obbWorldPos) {
+        verifyCache();
+
+        double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY, minZ = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY, maxZ = Double.NEGATIVE_INFINITY;
+
+        Bone[] bones = skeleton.getBones();
+        for (int i = 0; i < bones.length; i++) {
+            Matrix3f rot = worldRotationCache[i];
+
+            // Absolute-valued rotation: projects half-extents onto world axes without cancellation.
+            Matrix3f absRot = new Matrix3f(
+                    Math.abs(rot.m00), Math.abs(rot.m01), Math.abs(rot.m02),
+                    Math.abs(rot.m10), Math.abs(rot.m11), Math.abs(rot.m12),
+                    Math.abs(rot.m20), Math.abs(rot.m21), Math.abs(rot.m22)
+            );
+
+            Vec3 bonePos = worldPositionCache[i].add(obbWorldPos); // fold in rig placement
+
+            for (Part part : skeleton.partArray[i]) {
+                AABB box = part.localAABB();
+
+                // local box as center + half-extents
+                Vector3f c = new Vector3f(
+                        (float) ((box.minX + box.maxX) * 0.5),
+                        (float) ((box.minY + box.maxY) * 0.5),
+                        (float) ((box.minZ + box.maxZ) * 0.5)
+                );
+                Vector3f h = new Vector3f(
+                        (float) ((box.maxX - box.minX) * 0.5),
+                        (float) ((box.maxY - box.minY) * 0.5),
+                        (float) ((box.maxZ - box.minZ) * 0.5)
+                );
+
+                // world center of this part's box
+                Vector3f worldCenter = rot.transform(new Vector3f(c));
+                double cx = worldCenter.x + bonePos.x;
+                double cy = worldCenter.y + bonePos.y;
+                double cz = worldCenter.z + bonePos.z;
+
+                // world half-extents via the abs-matrix trick
+                Vector3f worldHalf = absRot.transform(new Vector3f(h));
+
+                minX = Math.min(minX, cx - worldHalf.x);  maxX = Math.max(maxX, cx + worldHalf.x);
+                minY = Math.min(minY, cy - worldHalf.y);  maxY = Math.max(maxY, cy + worldHalf.y);
+                minZ = Math.min(minZ, cz - worldHalf.z);  maxZ = Math.max(maxZ, cz + worldHalf.z);
+            }
+        }
+
+        return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+
     public record HitResult(boolean hit, double tMin) {}
     public static class HitResultCache {
         public Part hitPart = null;
