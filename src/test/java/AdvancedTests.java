@@ -1,4 +1,4 @@
-import com.semmelzahntiger.arms.common.skeletons.TestSkeleton;
+import com.semmelzahntiger.arms.common.skeletons.Skeletons;
 import com.semmelzahntiger.arms.core.obb.BoneId;
 import com.semmelzahntiger.arms.core.obb.Pose;
 import com.semmelzahntiger.arms.helper.MatrixHelper;
@@ -33,7 +33,7 @@ public class AdvancedTests {
     }
 
     private static Pose freshPose() {
-        return new Pose(TestSkeleton.TEST_SKELETON);
+        return new Pose(Skeletons.TEST_SKELETON);
     }
 
     @Test

@@ -1,4 +1,4 @@
-import com.semmelzahntiger.arms.common.skeletons.TestSkeleton;
+import com.semmelzahntiger.arms.common.skeletons.Skeletons;
 import com.semmelzahntiger.arms.core.obb.BoneId;
 import com.semmelzahntiger.arms.core.obb.Pose;
 import com.semmelzahntiger.arms.core.obb.Skeleton;
@@ -11,7 +11,7 @@ public class OBBTest {
 
     @Test
     public void testRotation() {
-        Skeleton skeleton = TestSkeleton.TEST_SKELETON;
+        Skeleton skeleton = Skeletons.TEST_SKELETON;
         Pose pose = new Pose(skeleton);
         BoneId boneId = new BoneId("TestMain");
         Matrix3f rotation = pose.getWorldRotationOf(boneId);

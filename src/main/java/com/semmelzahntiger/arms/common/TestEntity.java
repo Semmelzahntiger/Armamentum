@@ -1,11 +1,13 @@
 package com.semmelzahntiger.arms.common;
 
-import com.semmelzahntiger.arms.common.skeletons.TestSkeleton;
+import com.semmelzahntiger.arms.common.skeletons.Skeletons;
 import com.semmelzahntiger.arms.core.cts.CTSEntity;
 import com.semmelzahntiger.arms.core.cts.TestCTSData;
+import com.semmelzahntiger.arms.core.obb.BoneId;
 import com.semmelzahntiger.arms.core.obb.OBBEntity;
 import com.semmelzahntiger.arms.core.obb.Pose;
 import com.semmelzahntiger.arms.core.obb.Skeleton;
+import com.semmelzahntiger.arms.helper.MatrixHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
@@ -39,6 +41,13 @@ public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntit
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        getOBBPose().addRotation(new BoneId("TestMain"), MatrixHelper.getRotationMatrix(2, 2,2));
+        getOBBPose().addRotation(new BoneId("ChildRotated"), MatrixHelper.getRotationMatrix(0, 6,0));
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
     }
@@ -65,6 +74,6 @@ public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntit
 
     @Override
     public Skeleton getSkeleton() {
-        return TestSkeleton.TEST_SKELETON;
+        return Skeletons.TEST_SKELETON;
     }
 }

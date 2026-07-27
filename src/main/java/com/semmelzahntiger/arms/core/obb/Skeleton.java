@@ -63,6 +63,10 @@ public class Skeleton {
                 LogUtil.getLogger().warn("Tried to register bone with id thats already registered, ignoring...");
                 return this;
             }
+            if(id.equals(parent)) {
+                LogUtil.getLogger().warn("Registered bone with itself as the parent bone. Ignoring...");
+                return this;
+            }
             occupiedBoneIds.add(id);
             Bone bone = new Bone(id, parent, pivot, initial);
             bones.add(bone);

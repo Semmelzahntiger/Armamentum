@@ -1,6 +1,10 @@
 package com.semmelzahntiger.arms;
 
+import com.semmelzahntiger.arms.client.data.ClientData;
+import com.semmelzahntiger.arms.client.data.ClientDataManager;
 import com.semmelzahntiger.arms.client.events.ClientEventListeners;
+import com.semmelzahntiger.arms.client.events.RenderRegistrationEvents;
+import com.semmelzahntiger.arms.common.register.EntityRegister;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -36,7 +40,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class Arms {
     public static final String MODID = "arms";
     public static final Logger LOGGER = LogUtils.getLogger();
+    private static final IEventBus GAME_BUS = NeoForge.EVENT_BUS;
     public Arms(IEventBus modEventBus, ModContainer modContainer) {
-        modEventBus.register(ClientEventListeners.class);
+        GAME_BUS.register(ClientEventListeners.class);
+        modEventBus.register(RenderRegistrationEvents.class);
+        EntityRegister.ENTITY_REGISTER.register(modEventBus);
+        ClientDataManager.init();
     }
 }
