@@ -42,6 +42,9 @@ public class Skeleton {
     public int getIndexOfBoneId(BoneId id) {
         return idIndexMap.get(id);
     }
+    public List<Part> getPartOfBoneId(BoneId id) {
+        return part.get(id);
+    }
 
     public static class Builder {
         private final Set<BoneId> occupiedBoneIds = new HashSet<>();
@@ -70,12 +73,12 @@ public class Skeleton {
             bones.add(bone);
             return this;
         }
-        public Builder box(BoneId boneId, AABB localAABB) {
+        public Builder box(String partName, BoneId boneId, AABB localAABB) {
             if(!occupiedBoneIds.contains(boneId)) {
                 LogUtil.getLogger().warn("Tried adding Box to non existent Bone, ignoring...");
                 return this;
             }
-            parts.computeIfAbsent(boneId, k -> new ArrayList<>()).add(new Part(boneId, localAABB));
+            parts.computeIfAbsent(boneId, k -> new ArrayList<>()).add(new Part(partName, boneId, localAABB));
             return this;
         }
         public Skeleton build() {

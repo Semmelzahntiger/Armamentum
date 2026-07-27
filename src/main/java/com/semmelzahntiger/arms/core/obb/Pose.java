@@ -1,11 +1,13 @@
 package com.semmelzahntiger.arms.core.obb;
 
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 public class Pose {
     private final Skeleton skeleton;
@@ -31,8 +33,9 @@ public class Pose {
         cacheDirty = true;
     }
 
-    public void setTranslation(int boneIndex, Vec3 translation) {
-        translations[boneIndex] = translation;
+    public void setTranslation(BoneId boneIndex, Vec3 translation) {
+        int idx = skeleton.getIndexOfBoneId(boneIndex);
+        translations[idx] = translation;
         cacheDirty = true;
     }
 
@@ -43,7 +46,7 @@ public class Pose {
         }
     }
 
-    public void calculateCache() {
+    private void calculateCache() {
         Bone[] bones = skeleton.getBones();
         int[] indexEnds = skeleton.getSubTreeEnd();
         Deque<Integer> stack = new ArrayDeque<>();
@@ -73,4 +76,55 @@ public class Pose {
     public Vec3[] getWorldPosition() {
         return worldPositionCache;
     }
+    public Matrix3f getWorldRotationOf(BoneId boneId) {
+        ensureCache();
+        int idx = skeleton.getIndexOfBoneId(boneId);
+        return worldRotationCache[idx];
+    }
+    public Vec3 getWorldPositionOf(BoneId boneId) {
+        ensureCache();
+        int idx = skeleton.getIndexOfBoneId(boneId);
+        return worldPositionCache[idx];
+    }
+    public Vec3 getActualWorldPositionOf(BoneId boneId, Vec3 worldPos) {
+        ensureCache();
+        int idx = skeleton.getIndexOfBoneId(boneId);
+        return worldPositionCache[idx].add(worldPos);
+    }
+    public Vec3 toLocalSpaceOf(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos) {
+        Matrix3f rotation = getWorldRotationOf(boneId);
+        Matrix3f inv = new Matrix3f(rotation).transpose();
+        Vec3 position = getWorldPositionOf(boneId);
+        position = position.add(obbWorldPos);
+        transformableWorldPos = transformableWorldPos.subtract(position);
+        Vector3f vec3f = transformableWorldPos.toVector3f();
+        inv.transform(vec3f);
+        return new Vec3(vec3f.x, vec3f.y, vec3f.z);
+    }
+    public CollisionResult intersects(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
+        Vec3 localPos1 = toLocalSpaceOf(boneId, obbWorldPos, transformableWorldPos1);
+        Vec3 localPos2 = toLocalSpaceOf(boneId, obbWorldPos, transformableWorldPos2);
+        List<Part> parts = skeleton.getPartOfBoneId(boneId);
+
+    }
+    private boolean intersectsWithBox(Vec3 origin, Vec3 dir, Part part) {
+        AABB aabb = part.localAABB();
+        double minX = aabb.minX;
+        double minY = aabb.minY;
+        double minZ = aabb.minZ;
+        double maxX = aabb.maxX;
+        double maxY = aabb.maxY;
+        double maxZ = aabb.maxZ;
+
+        double t1x = (minX - origin.x()) / dir.x();
+        double t2x = (maxX + origin.x()) / dir.x();
+        double tMinX = Math.min(t1x, t2x);
+        double tMaxX = Math.max(t1x, t2x);
+
+
+    }
+    public record CollisionResult(String partName) {
+
+    }
+
 }
