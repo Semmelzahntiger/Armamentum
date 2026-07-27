@@ -5,11 +5,13 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
 public class Pose {
+    private static final float EPSILON = 1e-8f;
     private final Skeleton skeleton;
     Matrix3f[] rotations;
     Vec3[] translations;
@@ -101,30 +103,53 @@ public class Pose {
         inv.transform(vec3f);
         return new Vec3(vec3f.x, vec3f.y, vec3f.z);
     }
-    public CollisionResult intersects(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
+    public @Nullable Part intersects(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
         Vec3 localPos1 = toLocalSpaceOf(boneId, obbWorldPos, transformableWorldPos1);
         Vec3 localPos2 = toLocalSpaceOf(boneId, obbWorldPos, transformableWorldPos2);
         List<Part> parts = skeleton.getPartOfBoneId(boneId);
+        Part hitPart = null;
+        HitResult cachedResult = null;
+        for (Part part : parts) {
+            HitResult result = intersectsWithBox(localPos1, localPos2, part);
+            if (cachedResult != null) {
+                boolean nearer = cachedResult.tMin() < result.tMin();
+                if (nearer) {
+                    hitPart = part;
+                    cachedResult = result;
+                }
+            } else {
+                hitPart = part;
+                cachedResult = result;
+            }
+        }
+        return hitPart;
+    }
+    public Part anyIntersection(Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
 
     }
-    private boolean intersectsWithBox(Vec3 origin, Vec3 dir, Part part) {
+    private HitResult intersectsWithBox(Vec3 origin, Vec3 dir, Part part) {
         AABB aabb = part.localAABB();
-        double minX = aabb.minX;
-        double minY = aabb.minY;
-        double minZ = aabb.minZ;
-        double maxX = aabb.maxX;
-        double maxY = aabb.maxY;
-        double maxZ = aabb.maxZ;
-
-        double t1x = (minX - origin.x()) / dir.x();
-        double t2x = (maxX + origin.x()) / dir.x();
+        double t1x = (aabb.minX - origin.x()) / (dir.x() + EPSILON);
+        double t2x = (aabb.maxX - origin.x()) / (dir.x() + EPSILON);
         double tMinX = Math.min(t1x, t2x);
         double tMaxX = Math.max(t1x, t2x);
+        double t1y = (aabb.minY -  origin.y()) / (dir.y() + EPSILON);
+        double t2y = (aabb.maxY - origin.y()) / (dir.y() + EPSILON);
+        double tMinY = Math.min(t1y, t2y);
+        double tMaxY = Math.max(t1y, t2y);
+        double t1z = (aabb.minZ - origin.z()) / (dir.z() + EPSILON);
+        double t2z = (aabb.maxZ - origin.z()) / (dir.z() + EPSILON);
+        double tMinZ = Math.min(t1z, t2z);
+        double tMaxZ = Math.max(t1z, t2z);
 
+        double tMin = Math.min(Math.min(tMinX, tMinY), tMinZ);
+        double tMax = Math.max(Math.max(tMaxX, tMaxY), tMaxZ);
 
+        if(tMax < 0) {
+            return new HitResult(false, 0);
+        }
+        else return new HitResult(!(tMin > tMax), tMin);
     }
-    public record CollisionResult(String partName) {
-
-    }
+    public record HitResult(boolean hit, double tMin) {}
 
 }
