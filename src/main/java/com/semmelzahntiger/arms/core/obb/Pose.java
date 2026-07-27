@@ -2,13 +2,14 @@ package com.semmelzahntiger.arms.core.obb;
 
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 
 public class Pose {
     private static final float EPSILON = 1e-8f;
@@ -72,84 +73,121 @@ public class Pose {
             stack.push(i);
         }
     }
-    public Matrix3f[] getWorldRotation() {
+    public Matrix3f[] getWorldRotationCache() {
         return worldRotationCache;
     }
-    public Vec3[] getWorldPosition() {
+    public Vec3[] getWorldPositionCache() {
         return worldPositionCache;
     }
     public Matrix3f getWorldRotationOf(BoneId boneId) {
+        return getWorldRotationOf(skeleton.getIndexOfBoneId(boneId));
+    }
+    public Matrix3f getWorldRotationOf(int boneIndex) {
         ensureCache();
-        int idx = skeleton.getIndexOfBoneId(boneId);
-        return worldRotationCache[idx];
+        return worldRotationCache[boneIndex];
     }
     public Vec3 getWorldPositionOf(BoneId boneId) {
-        ensureCache();
-        int idx = skeleton.getIndexOfBoneId(boneId);
-        return worldPositionCache[idx];
+       return getWorldPositionOf(skeleton.getIndexOfBoneId(boneId));
     }
-    public Vec3 getActualWorldPositionOf(BoneId boneId, Vec3 worldPos) {
+    public Vec3 getWorldPositionOf(int boneIndex) {
         ensureCache();
-        int idx = skeleton.getIndexOfBoneId(boneId);
-        return worldPositionCache[idx].add(worldPos);
+        return worldPositionCache[boneIndex];
+    }
+
+    public Vec3 getActualWorldPositionOf(BoneId boneId, Vec3 worldPos) {
+       return getActualWorldPositionOf(skeleton.getIndexOfBoneId(boneId), worldPos);
+    }
+    public Vec3 getActualWorldPositionOf(int boneIndex, Vec3 worldPos) {
+        ensureCache();
+        return worldPositionCache[boneIndex].add(worldPos);
     }
     public Vec3 toLocalSpaceOf(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos) {
-        Matrix3f rotation = getWorldRotationOf(boneId);
+        return toLocalSpaceOf(skeleton.getIndexOfBoneId(boneId), obbWorldPos, transformableWorldPos);
+    }
+    public Vec3 toLocalSpaceOf(int boneIndex, Vec3 obbWorldPos, Vec3 transformableWorldPos) {
+        Matrix3f rotation = getWorldRotationOf(boneIndex);
         Matrix3f inv = new Matrix3f(rotation).transpose();
-        Vec3 position = getWorldPositionOf(boneId);
+        Vec3 position = getWorldPositionOf(boneIndex);
         position = position.add(obbWorldPos);
         transformableWorldPos = transformableWorldPos.subtract(position);
         Vector3f vec3f = transformableWorldPos.toVector3f();
         inv.transform(vec3f);
         return new Vec3(vec3f.x, vec3f.y, vec3f.z);
     }
-    public @Nullable Part intersects(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
-        Vec3 localPos1 = toLocalSpaceOf(boneId, obbWorldPos, transformableWorldPos1);
-        Vec3 localPos2 = toLocalSpaceOf(boneId, obbWorldPos, transformableWorldPos2);
-        List<Part> parts = skeleton.getPartOfBoneId(boneId);
+    public @Nullable Part intersects(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2, HitResultCache cache) {
+        return intersects(skeleton.getIndexOfBoneId(boneId), obbWorldPos, transformableWorldPos1, transformableWorldPos2, cache);
+    }
+    public @Nullable Part intersects(int boneIndex, @NotNull Vec3 obbWorldPos,
+                                     @NotNull Vec3 transformableWorldPos1, @NotNull Vec3 transformableWorldPos2,
+                                     @Nullable HitResultCache cache) {
+        Vec3 localOrigin = toLocalSpaceOf(boneIndex, obbWorldPos, transformableWorldPos1);
+        Vec3 localEnd    = toLocalSpaceOf(boneIndex, obbWorldPos, transformableWorldPos2);
+        Vec3 dir = localEnd.subtract(localOrigin); // actual ray direction
+
+        Part[] boneParts = skeleton.partArray[boneIndex];
         Part hitPart = null;
-        HitResult cachedResult = null;
-        for (Part part : parts) {
-            HitResult result = intersectsWithBox(localPos1, localPos2, part);
-            if (cachedResult != null) {
-                boolean nearer = cachedResult.tMin() < result.tMin();
-                if (nearer) {
-                    hitPart = part;
-                    cachedResult = result;
-                }
-            } else {
+        double bestT = Double.MAX_VALUE;
+
+        for (Part part : boneParts) {
+            HitResult result = intersectsWithBox(localOrigin, dir, part);
+            if (result.hit() && result.tMin() < bestT) { // only real hits, keep the nearest
+                bestT = result.tMin();
                 hitPart = part;
-                cachedResult = result;
             }
+        }
+
+        if (cache != null && hitPart != null) {
+            cache.newCandidate(hitPart, bestT);
         }
         return hitPart;
     }
-    public Part anyIntersection(Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
-
-    }
-    private HitResult intersectsWithBox(Vec3 origin, Vec3 dir, Part part) {
-        AABB aabb = part.localAABB();
-        double t1x = (aabb.minX - origin.x()) / (dir.x() + EPSILON);
-        double t2x = (aabb.maxX - origin.x()) / (dir.x() + EPSILON);
-        double tMinX = Math.min(t1x, t2x);
-        double tMaxX = Math.max(t1x, t2x);
-        double t1y = (aabb.minY -  origin.y()) / (dir.y() + EPSILON);
-        double t2y = (aabb.maxY - origin.y()) / (dir.y() + EPSILON);
-        double tMinY = Math.min(t1y, t2y);
-        double tMaxY = Math.max(t1y, t2y);
-        double t1z = (aabb.minZ - origin.z()) / (dir.z() + EPSILON);
-        double t2z = (aabb.maxZ - origin.z()) / (dir.z() + EPSILON);
-        double tMinZ = Math.min(t1z, t2z);
-        double tMaxZ = Math.max(t1z, t2z);
-
-        double tMin = Math.min(Math.min(tMinX, tMinY), tMinZ);
-        double tMax = Math.max(Math.max(tMaxX, tMaxY), tMaxZ);
-
-        if(tMax < 0) {
-            return new HitResult(false, 0);
+    public @Nullable Part anyIntersection(Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
+        Bone[] bones = skeleton.getBones();
+        HitResultCache cache = new HitResultCache();
+        for (int i = 0; i < bones.length; i++) {
+            intersects(i, obbWorldPos, transformableWorldPos1, transformableWorldPos2, cache);
         }
-        else return new HitResult(!(tMin > tMax), tMin);
+        return cache.hitPart;
+    }
+    private @NotNull HitResult intersectsWithBox(Vec3 origin, Vec3 dir, Part part) {
+        AABB aabb = part.localAABB();
+
+        double tNear = Double.NEGATIVE_INFINITY;
+        double tFar  = Double.POSITIVE_INFINITY;
+
+        double[] o   = { origin.x(), origin.y(), origin.z() };
+        double[] d   = { dir.x(),    dir.y(),    dir.z()    };
+        double[] min = { aabb.minX,  aabb.minY,  aabb.minZ  };
+        double[] max = { aabb.maxX,  aabb.maxY,  aabb.maxZ  };
+
+        for (int a = 0; a < 3; a++) {
+            if (Math.abs(d[a]) < EPSILON) {
+                if (o[a] < min[a] || o[a] > max[a]) return new HitResult(false, 0);
+            } else {
+                double inv = 1.0 / d[a];
+                double t1 = (min[a] - o[a]) * inv;
+                double t2 = (max[a] - o[a]) * inv;
+                if (t1 > t2) { double tmp = t1; t1 = t2; t2 = tmp; }
+                if (t1 > tNear) tNear = t1;
+                if (t2 < tFar)  tFar  = t2;
+                if (tNear > tFar) return new HitResult(false, 0);
+            }
+        }
+        // No Hit if the box is behind the ray or if the box is farther away than the ray segment
+        if (tFar < 0 || tNear > 1) return new HitResult(false, 0);
+        return new HitResult(true, tNear);
     }
     public record HitResult(boolean hit, double tMin) {}
+    public static class HitResultCache {
+        public Part hitPart = null;
+        public double tMin = Double.MAX_VALUE;
+
+        public void newCandidate(Part part, double newTMin) {
+            if(newTMin < tMin) {
+                hitPart = part;
+                tMin = newTMin;
+            }
+        }
+    }
 
 }
