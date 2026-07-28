@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 public class TopoSort {
+    /**
+     * Topologically sorts the array of Bones
+     * @param boneArray Array to be sorted
+     * @return Topologically sorted array of Bones and array of subTreeEnds for the sorted bone array
+     */
     public static SortResult sort(final Bone[] boneArray) {
         Map<Bone, List<Bone>> childrenMap = new HashMap<>();
         Map<BoneId, Bone> bones = new HashMap<>();

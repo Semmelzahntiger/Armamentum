@@ -37,12 +37,26 @@ public class Skeleton {
     public Bone[] getBones() {
         return bones;
     }
+
+    /**
+     * @return Array corresponding to the indices of the Bones. Tells at which index of the bones the current bones subtree ends.
+     */
     public int[] getSubTreeEnd() {
         return subTreeEnd;
     }
+
+    /**
+     * @param id id of the Bone
+     * @return index of said Bone in the bone array
+     */
     public int getIndexOfBoneId(BoneId id) {
         return idIndexMap.get(id);
     }
+
+    /**
+     * @param id id of the Bone
+     * @return array containing all Parts of the Bone
+     */
     public Part[] getPartOfBoneId(BoneId id) {
         return partArray[getIndexOfBoneId(id)];
     }

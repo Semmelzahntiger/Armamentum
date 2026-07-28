@@ -10,6 +10,10 @@ import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+/**
+ * Mutable Component representing the Transformed version of {@link Skeleton Skeletons}
+ * Todo: Add Disabling of Parts
+ */
 public class Pose {
     private static final float EPSILON = 1e-8f;
     private final Skeleton skeleton;
@@ -35,28 +39,59 @@ public class Pose {
         worldPositionCache = new Vec3[count];
     }
 
+    /**
+     * Sets the Rotation of a Bone. If rotation is equal to current, return early.
+     * @param boneId id of the Bone
+     * @param rotation desired Rotation
+     */
     public void setRotation(BoneId boneId, Matrix3f rotation) {
         int idx = skeleton.getIndexOfBoneId(boneId);
+        if(rotations[idx].equals(rotation)) {
+            return;
+        }
         rotations[idx] = rotation;
         cacheDirty = true;
     }
 
-    public void setTranslation(BoneId boneIndex, Vec3 translation) {
-        int idx = skeleton.getIndexOfBoneId(boneIndex);
+    /**
+     * Sets the Translation of a Bone. If translation is equal return early.
+     * @param boneId index of Bone
+     * @param translation desired Translation
+     */
+    public void setTranslation(BoneId boneId, Vec3 translation) {
+        int idx = skeleton.getIndexOfBoneId(boneId);
+        if(translations[idx].equals(translation)) {
+            return;
+        }
         translations[idx] = translation;
         cacheDirty = true;
     }
+
+    /**
+     * Adds rotation to the Bone. If rotation is Identity Matrix, return early.
+     * @param boneId id of Bone
+     * @param rotation desired additive Rotation
+     */
     public void addRotation(BoneId boneId, Matrix3f rotation) {
+        if(rotation.equals(new Matrix3f())) {
+            return;
+        }
         int idx = skeleton.getIndexOfBoneId(boneId);
         rotations[idx] = rotations[idx].mul(rotation);
         cacheDirty = true;
     }
     public void addTranslation(BoneId boneIndex, Vec3 translation) {
+        if(translation.equals(Vec3.ZERO)) {
+            return;
+        }
         int idx = skeleton.getIndexOfBoneId(boneIndex);
         translations[idx] = translations[idx].add(translation);
         cacheDirty = true;
     }
 
+    /**
+     * Verifies if current cache is still valid. If not recalculate
+     */
     public void verifyCache() {
         if (cacheDirty) {
             calculateCache();
@@ -64,7 +99,10 @@ public class Pose {
         }
     }
 
-
+    /**
+     * Calculates the Cache of each Bone's final world space rotation and translation.
+     * Propagates parent bones rotation and translation values to its children.
+     */
     private void calculateCache() {
         Bone[] bones = skeleton.getBones();
         int[] indexEnds = skeleton.getSubTreeEnd();
@@ -89,9 +127,17 @@ public class Pose {
             stack.push(i);
         }
     }
+
+    /**
+     * @return Final Rotation Matrices from World-View
+     */
     public Matrix3f[] getWorldRotationCache() {
         return worldRotationCache;
     }
+
+    /**
+     * @return Final Translation Vectors from Entity origin
+     */
     public Vec3[] getWorldPositionCache() {
         return worldPositionCache;
     }
@@ -110,9 +156,15 @@ public class Pose {
         return worldPositionCache[boneIndex];
     }
 
+
     public Vec3 getActualWorldPositionOf(BoneId boneId, Vec3 worldPos) {
        return getActualWorldPositionOf(skeleton.getIndexOfBoneId(boneId), worldPos);
     }
+    /**
+     * @param boneIndex id of Bone
+     * @param worldPos position of entity holding the Pose
+     * @return In-World position of the Bone
+     */
     public Vec3 getActualWorldPositionOf(int boneIndex, Vec3 worldPos) {
         verifyCache();
         return worldPositionCache[boneIndex].add(worldPos);
@@ -120,6 +172,13 @@ public class Pose {
     public Vec3 toLocalSpaceOf(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos) {
         return toLocalSpaceOf(skeleton.getIndexOfBoneId(boneId), obbWorldPos, transformableWorldPos);
     }
+
+    /**
+     * @param boneIndex index of Bone
+     * @param obbWorldPos in World position of Entity
+     * @param transformableWorldPos Coordinate to be transformed into Bone's local space
+     * @return
+     */
     public Vec3 toLocalSpaceOf(int boneIndex, Vec3 obbWorldPos, Vec3 transformableWorldPos) {
         Matrix3f rotation = getWorldRotationOf(boneIndex);
         Matrix3f inv = new Matrix3f(rotation).transpose();
@@ -133,6 +192,15 @@ public class Pose {
     public @Nullable Part intersects(BoneId boneId, Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2, HitResultCache cache) {
         return intersects(skeleton.getIndexOfBoneId(boneId), obbWorldPos, transformableWorldPos1, transformableWorldPos2, cache);
     }
+
+    /**
+     * @param boneIndex index of Bone
+     * @param obbWorldPos in world position of Entity
+     * @param transformableWorldPos1 start of the ray segment
+     * @param transformableWorldPos2 end of the ray segment
+     * @param cache cache holding the result of the ray collision across multiple bone intersections
+     * @return Closest Part that was hit by the Ray. {@code null} if no part was hit
+     */
     public @Nullable Part intersects(int boneIndex, @NotNull Vec3 obbWorldPos,
                                      @NotNull Vec3 transformableWorldPos1, @NotNull Vec3 transformableWorldPos2,
                                      @Nullable HitResultCache cache) {
@@ -160,6 +228,14 @@ public class Pose {
     public int getBoneCount() {
         return skeleton.getBoneCount();
     }
+
+    /**
+     * Checks if ray intersects with any bone/part of the entire Entity
+     * @param obbWorldPos in world position of Entity
+     * @param transformableWorldPos1 start of ray segment
+     * @param transformableWorldPos2 end of ray segment
+     * @return Part that was hit by ray segment. {@code null} if no Part was hit
+     */
     public @Nullable Part anyIntersection(Vec3 obbWorldPos, Vec3 transformableWorldPos1, Vec3 transformableWorldPos2) {
         Bone[] bones = skeleton.getBones();
         HitResultCache cache = new HitResultCache();
@@ -168,6 +244,14 @@ public class Pose {
         }
         return cache.hitPart;
     }
+
+    /**
+     * Uses Slab method to check if ray hit the part
+     * @param origin start of ray segment
+     * @param dir end of ray segment
+     * @param part part to check collision with
+     * @return Result of the collision check
+     */
     private @NotNull HitResult intersectsWithBox(Vec3 origin, Vec3 dir, Part part) {
         AABB aabb = part.localAABB();
 
@@ -197,6 +281,10 @@ public class Pose {
         return new HitResult(true, tNear);
     }
 
+    /**
+     * @param obbWorldPos in world position of entity
+     * @return Minimum AABB to encapsulate all parts of the entity
+     */
     public AABB getEncapsulatingAABB(Vec3 obbWorldPos) {
         verifyCache();
 

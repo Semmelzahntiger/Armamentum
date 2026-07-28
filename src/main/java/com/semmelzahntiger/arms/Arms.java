@@ -35,6 +35,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import util.ServerTaskScheduler;
 
 @Mod(Arms.MODID)
 public class Arms {
@@ -43,6 +44,7 @@ public class Arms {
     private static final IEventBus GAME_BUS = NeoForge.EVENT_BUS;
     public Arms(IEventBus modEventBus, ModContainer modContainer) {
         GAME_BUS.register(ClientEventListeners.class);
+        GAME_BUS.register(ServerTaskScheduler.class);
         modEventBus.register(RenderRegistrationEvents.class);
         EntityRegister.ENTITY_REGISTER.register(modEventBus);
         ClientDataManager.init();
