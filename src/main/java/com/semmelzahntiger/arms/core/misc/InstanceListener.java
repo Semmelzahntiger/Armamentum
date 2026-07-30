@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.core.misc;
+﻿package com.semmelzahntiger.arms.core.misc;
 
 import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
@@ -60,120 +60,119 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 public interface InstanceListener {
-    void onPlayerBrewedPotionEvent(PlayerBrewedPotionEvent event);
-    void onPotionBrewEventPre(PotionBrewEvent.Pre event);
-    void onPotionBrewEventPost(PotionBrewEvent.Post event);
-    void onEnchantmentLevelSetEvent(EnchantmentLevelSetEvent event);
-    void onGetEnchantmentLevelEvent(GetEnchantmentLevelEvent event);
-    void onEntityEventEnteringSection(EntityEvent.EnteringSection event);
-    void onEntityEventSize(EntityEvent.Size event);
-    void onEntityConstructing(EntityEvent.EntityConstructing event);
-    void onEntityInvulnerabilityCheckEvent(EntityInvulnerabilityCheckEvent event);
-    void onEntityJoinLevelEvent(EntityJoinLevelEvent event);
-    void onEntityLeaveLevelEvent(EntityLeaveLevelEvent event);
-    void onEntityMobGriefingEvent(EntityMobGriefingEvent event);
-    void onEntityMountEvent(EntityMountEvent event);
-    void onEntityStruckByLightningEvent(EntityStruckByLightningEvent event);
-    void onEntityTeleportEvent(EntityTeleportEvent event);
-    void onEntityTravelToDimensionEvent(EntityTravelToDimensionEvent event);
-    void onProjectileImpactEvent(ProjectileImpactEvent event);
-    void onItemExpireEvent(ItemExpireEvent event);
-    void onItemTossEvent(ItemTossEvent event);
-    void onAnimalTameEvent(AnimalTameEvent event);
-    void onArmorHurtEvent(ArmorHurtEvent event);
-    void onBabyEntitySpawnEvent(BabyEntitySpawnEvent event);
-    void onEffectParticleModificationEvent(EffectParticleModificationEvent event);
-    void onEnderManAngerEvent(EnderManAngerEvent event);
-    void onFinalizeSpawnEvent(FinalizeSpawnEvent event);
-    void onLivingBreatheEvent(LivingBreatheEvent event);
-    void onLivingChangeTargetEvent(LivingChangeTargetEvent event);
-    void onLivingConversionEventPre(LivingConversionEvent.Pre event);
-    void onLivingConversionPostEvent(LivingConversionEvent.Post event);
-    void onLivingDamageEventPre(LivingDamageEvent.Pre event);
-    void onLivingDamageEventPost(LivingDamageEvent.Post event);
-    void onLivingDeathEvent(LivingDeathEvent event);
-    void onLivingDestroyBlockEvent(LivingDestroyBlockEvent event);
-    void onLivingDropsEvent(LivingDropsEvent event);
-    void onLivingDrownEvent(LivingDrownEvent event);
-    void onLivingEntityUseItemEvent(LivingEntityUseItemEvent event);
-    void onLivingEquipmentChangeEvent(LivingEquipmentChangeEvent event);
-    void onLivingEventJumpEvent(LivingEvent.LivingJumpEvent event);
-    void onLivingEventVisibilityEvent(LivingEvent.LivingVisibilityEvent event);
-    void onLivingExperienceDropEvent(LivingExperienceDropEvent event);
-    void onLivingFallEvent(LivingFallEvent event);
-    void onLivingGetProjectileEvent(LivingGetProjectileEvent event);
-    void onLivingHealEvent(LivingHealEvent event);
-    void onLivingIncomingDamageEvent(LivingIncomingDamageEvent event);
-    void onLivingKnockBackEvent(LivingKnockBackEvent event);
-    void onLivingShieldBlockEvent(LivingShieldBlockEvent event);
-    void onLivingSwapItemsEvent(LivingSwapItemsEvent.Hands event);
-    void onLivingUseTotemEvent(LivingUseTotemEvent event);
-    void onMobDespawnEvent(MobDespawnEvent event);
-    void onMobEffectAddedEvent(MobEffectEvent.Added event);
-    void onMobEffectApplicableEvent(MobEffectEvent.Applicable event);
-    void onMobEffectExpiredEvent(MobEffectEvent.Expired event);
-    void onMobEffectRemoveEvent(MobEffectEvent.Remove event);
-    void onMobSpawnPositionCheckEvent(MobSpawnEvent.PositionCheck event);
-    void onMapSpawnPlacementCheckEvent(MobSpawnEvent.SpawnPlacementCheck event);
-    void onMobSplitEvent(MobSplitEvent event);
-    void onSpawnClusterSizeEvent(SpawnClusterSizeEvent event);
-    void onAlterGroundEvent(AlterGroundEvent event);
-    void onBlockDropsEvent(BlockDropsEvent event);
-    void onBlockToolModificationEvent(BlockEvent.BlockToolModificationEvent event);
-    void onBlockBreakEvent(BlockEvent.BreakEvent event);
-    void onEntityMultiPlaceEvent(BlockEvent.EntityMultiPlaceEvent event);
-    void onEntityPlaceEvent(BlockEvent.EntityPlaceEvent event);
-    void onFarmlandTrampleEvent(BlockEvent.FarmlandTrampleEvent event);
-    void onFluidPlaceBlockEvent(BlockEvent.FluidPlaceBlockEvent event);
-    void onNeighbourNotifyEvent(BlockEvent.NeighborNotifyEvent event);
-    void onPortalSpawnEvent(BlockEvent.PortalSpawnEvent event);
-    void onBlockGrowFeatureEvent(BlockGrowFeatureEvent event);
-    void onChunkDataSaveEvent(ChunkDataEvent.Save event);
-    void onChunkDataLoadEvent(ChunkDataEvent.Load event);
-    void onChunkLoadEvent(ChunkEvent.Load event);
-    void onChunkUnloadEvent(ChunkEvent.Unload event);
-    void onChunkTicketLevelUpdateEvent(ChunkTicketLevelUpdatedEvent event);
-    void onChunkWatchEvent(ChunkWatchEvent chunkWatchEvent);
-    void onExplosionStartEvent(ExplosionEvent.Start event);
-    void onExplosionDetonateEvent(ExplosionEvent.Detonate event);
-    void onExplosionKnockbackEvent(ExplosionKnockbackEvent event);
-    void onCreateSpawnPositionEvent(LevelEvent.CreateSpawnPosition event);
-    void onLevelLoadEvent(LevelEvent.Load event);
-    void onLevelUnloadEvent(LevelEvent.Unload event);
-    void onPotentialSpawnsEvent(LevelEvent.PotentialSpawns event);
-    void onLevelSaveEvent(LevelEvent.Save event);
-    void onModifyCustomSpawnersEvent(ModifyCustomSpawnersEvent event);
-    void onNoteBlockEvent(NoteBlockEvent.Change event);
-    void onNoteBlockPlayEvent(NoteBlockEvent.Play event);
-    void onPistonPreEvent(PistonEvent.Pre event);
-    void onPistonPostEvent(PistonEvent.Post event);
-    void onSleepFinishedTimeEvent(SleepFinishedTimeEvent event);
-    void onServerAboutToStartEvent(ServerAboutToStartEvent event);
-    void onServerLifecycleEvent(ServerStartedEvent event);
-    void onServerStartingEvent(ServerStartingEvent event);
-    void onServerStoppingEvent(ServerStoppingEvent event);
-    void onServerStoppedEvent(ServerStoppedEvent event);
-    void onLevelTickPreEvent(LevelTickEvent.Pre event);
-    void onLevelTickPostEvent(LevelTickEvent.Post event);
-    void onPlayerTickPreEvent(PlayerTickEvent.Pre event);
-    void onPlayerTickPostEvent(PlayerTickEvent.Post event);
-    void onServerTickPreEvent(ServerTickEvent.Pre event);
-    void onServerTickPostEvent(ServerTickEvent.Post event);
-    void onAnvilUpdateEvent(AnvilUpdateEvent event);
-    void onCommandEvent(CommandEvent event);
-    void onDifficultyChangeEvent(DifficultyChangeEvent event);
-    void onGrindstonePlaceItemEvent(GrindstoneEvent.OnPlaceItem event);
-    void onGrindstoneTakeItemEvent(GrindstoneEvent.OnTakeItem event);
-    void onItemAttributeModifierEvent(ItemAttributeModifierEvent event);
-    void onItemStackedOnOtherEvent(ItemStackedOnOtherEvent event);
-    void onLootTableLoadEvent(LootTableLoadEvent event);
-    void onModifyDefaultComponentsEvent(ModifyDefaultComponentsEvent event);
-    void onPlayLevelSoundEvent(PlayLevelSoundEvent event);
-    void onRegisterCommandsEvent(RegisterCommandsEvent event);
-    void onServerChatEvent(ServerChatEvent event);
-    void onStatAwardEvent(StatAwardEvent event);
-    void onTagsUpdatedEvent(TagsUpdatedEvent event);
-    void onVanillaGameEvent(VanillaGameEvent event);
-    void onFurnaceFuelBurnItemEvent(FurnaceFuelBurnTimeEvent event);
-
+    default void onPlayerBrewedPotionEvent(PlayerBrewedPotionEvent event) {}
+    default void onPotionBrewEventPre(PotionBrewEvent.Pre event) {}
+    default void onPotionBrewEventPost(PotionBrewEvent.Post event) {}
+    default void onEnchantmentLevelSetEvent(EnchantmentLevelSetEvent event) {}
+    default void onGetEnchantmentLevelEvent(GetEnchantmentLevelEvent event) {}
+    default void onEntityEventEnteringSection(EntityEvent.EnteringSection event) {}
+    default void onEntityEventSize(EntityEvent.Size event) {}
+    default void onEntityConstructing(EntityEvent.EntityConstructing event) {}
+    default void onEntityInvulnerabilityCheckEvent(EntityInvulnerabilityCheckEvent event) {}
+    default void onEntityJoinLevelEvent(EntityJoinLevelEvent event) {}
+    default void onEntityLeaveLevelEvent(EntityLeaveLevelEvent event) {}
+    default void onEntityMobGriefingEvent(EntityMobGriefingEvent event) {}
+    default void onEntityMountEvent(EntityMountEvent event) {}
+    default void onEntityStruckByLightningEvent(EntityStruckByLightningEvent event) {}
+    default void onEntityTeleportEvent(EntityTeleportEvent event) {}
+    default void onEntityTravelToDimensionEvent(EntityTravelToDimensionEvent event) {}
+    default void onProjectileImpactEvent(ProjectileImpactEvent event) {}
+    default void onItemExpireEvent(ItemExpireEvent event) {}
+    default void onItemTossEvent(ItemTossEvent event) {}
+    default void onAnimalTameEvent(AnimalTameEvent event) {}
+    default void onArmorHurtEvent(ArmorHurtEvent event) {}
+    default void onBabyEntitySpawnEvent(BabyEntitySpawnEvent event) {}
+    default void onEffectParticleModificationEvent(EffectParticleModificationEvent event) {}
+    default void onEnderManAngerEvent(EnderManAngerEvent event) {}
+    default void onFinalizeSpawnEvent(FinalizeSpawnEvent event) {}
+    default void onLivingBreatheEvent(LivingBreatheEvent event) {}
+    default void onLivingChangeTargetEvent(LivingChangeTargetEvent event) {}
+    default void onLivingConversionEventPre(LivingConversionEvent.Pre event) {}
+    default void onLivingConversionPostEvent(LivingConversionEvent.Post event) {}
+    default void onLivingDamageEventPre(LivingDamageEvent.Pre event) {}
+    default void onLivingDamageEventPost(LivingDamageEvent.Post event) {}
+    default void onLivingDeathEvent(LivingDeathEvent event) {}
+    default void onLivingDestroyBlockEvent(LivingDestroyBlockEvent event) {}
+    default void onLivingDropsEvent(LivingDropsEvent event) {}
+    default void onLivingDrownEvent(LivingDrownEvent event) {}
+    default void onLivingEntityUseItemEvent(LivingEntityUseItemEvent event) {}
+    default void onLivingEquipmentChangeEvent(LivingEquipmentChangeEvent event) {}
+    default void onLivingEventJumpEvent(LivingEvent.LivingJumpEvent event) {}
+    default void onLivingEventVisibilityEvent(LivingEvent.LivingVisibilityEvent event) {}
+    default void onLivingExperienceDropEvent(LivingExperienceDropEvent event) {}
+    default void onLivingFallEvent(LivingFallEvent event) {}
+    default void onLivingGetProjectileEvent(LivingGetProjectileEvent event) {}
+    default void onLivingHealEvent(LivingHealEvent event) {}
+    default void onLivingIncomingDamageEvent(LivingIncomingDamageEvent event) {}
+    default void onLivingKnockBackEvent(LivingKnockBackEvent event) {}
+    default void onLivingShieldBlockEvent(LivingShieldBlockEvent event) {}
+    default void onLivingSwapItemsEvent(LivingSwapItemsEvent.Hands event) {}
+    default void onLivingUseTotemEvent(LivingUseTotemEvent event) {}
+    default void onMobDespawnEvent(MobDespawnEvent event) {}
+    default void onMobEffectAddedEvent(MobEffectEvent.Added event) {}
+    default void onMobEffectApplicableEvent(MobEffectEvent.Applicable event) {}
+    default void onMobEffectExpiredEvent(MobEffectEvent.Expired event) {}
+    default void onMobEffectRemoveEvent(MobEffectEvent.Remove event) {}
+    default void onMobSpawnPositionCheckEvent(MobSpawnEvent.PositionCheck event) {}
+    default void onMapSpawnPlacementCheckEvent(MobSpawnEvent.SpawnPlacementCheck event) {}
+    default void onMobSplitEvent(MobSplitEvent event) {}
+    default void onSpawnClusterSizeEvent(SpawnClusterSizeEvent event) {}
+    default void onAlterGroundEvent(AlterGroundEvent event) {}
+    default void onBlockDropsEvent(BlockDropsEvent event) {}
+    default void onBlockToolModificationEvent(BlockEvent.BlockToolModificationEvent event) {}
+    default void onBlockBreakEvent(BlockEvent.BreakEvent event) {}
+    default void onEntityMultiPlaceEvent(BlockEvent.EntityMultiPlaceEvent event) {}
+    default void onEntityPlaceEvent(BlockEvent.EntityPlaceEvent event) {}
+    default void onFarmlandTrampleEvent(BlockEvent.FarmlandTrampleEvent event) {}
+    default void onFluidPlaceBlockEvent(BlockEvent.FluidPlaceBlockEvent event) {}
+    default void onNeighbourNotifyEvent(BlockEvent.NeighborNotifyEvent event) {}
+    default void onPortalSpawnEvent(BlockEvent.PortalSpawnEvent event) {}
+    default void onBlockGrowFeatureEvent(BlockGrowFeatureEvent event) {}
+    default void onChunkDataSaveEvent(ChunkDataEvent.Save event) {}
+    default void onChunkDataLoadEvent(ChunkDataEvent.Load event) {}
+    default void onChunkLoadEvent(ChunkEvent.Load event) {}
+    default void onChunkUnloadEvent(ChunkEvent.Unload event) {}
+    default void onChunkTicketLevelUpdateEvent(ChunkTicketLevelUpdatedEvent event) {}
+    default void onChunkWatchEvent(ChunkWatchEvent chunkWatchEvent) {}
+    default void onExplosionStartEvent(ExplosionEvent.Start event) {}
+    default void onExplosionDetonateEvent(ExplosionEvent.Detonate event) {}
+    default void onExplosionKnockbackEvent(ExplosionKnockbackEvent event) {}
+    default void onCreateSpawnPositionEvent(LevelEvent.CreateSpawnPosition event) {}
+    default void onLevelLoadEvent(LevelEvent.Load event) {}
+    default void onLevelUnloadEvent(LevelEvent.Unload event) {}
+    default void onPotentialSpawnsEvent(LevelEvent.PotentialSpawns event) {}
+    default void onLevelSaveEvent(LevelEvent.Save event) {}
+    default void onModifyCustomSpawnersEvent(ModifyCustomSpawnersEvent event) {}
+    default void onNoteBlockEvent(NoteBlockEvent.Change event) {}
+    default void onNoteBlockPlayEvent(NoteBlockEvent.Play event) {}
+    default void onPistonPreEvent(PistonEvent.Pre event) {}
+    default void onPistonPostEvent(PistonEvent.Post event) {}
+    default void onSleepFinishedTimeEvent(SleepFinishedTimeEvent event) {}
+    default void onServerAboutToStartEvent(ServerAboutToStartEvent event) {}
+    default void onServerLifecycleEvent(ServerStartedEvent event) {}
+    default void onServerStartingEvent(ServerStartingEvent event) {}
+    default void onServerStoppingEvent(ServerStoppingEvent event) {}
+    default void onServerStoppedEvent(ServerStoppedEvent event) {}
+    default void onLevelTickPreEvent(LevelTickEvent.Pre event) {}
+    default void onLevelTickPostEvent(LevelTickEvent.Post event) {}
+    default void onPlayerTickPreEvent(PlayerTickEvent.Pre event) {}
+    default void onPlayerTickPostEvent(PlayerTickEvent.Post event) {}
+    default void onServerTickPreEvent(ServerTickEvent.Pre event) {}
+    default void onServerTickPostEvent(ServerTickEvent.Post event) {}
+    default void onAnvilUpdateEvent(AnvilUpdateEvent event) {}
+    default void onCommandEvent(CommandEvent event) {}
+    default void onDifficultyChangeEvent(DifficultyChangeEvent event) {}
+    default void onGrindstonePlaceItemEvent(GrindstoneEvent.OnPlaceItem event) {}
+    default void onGrindstoneTakeItemEvent(GrindstoneEvent.OnTakeItem event) {}
+    default void onItemAttributeModifierEvent(ItemAttributeModifierEvent event) {}
+    default void onItemStackedOnOtherEvent(ItemStackedOnOtherEvent event) {}
+    default void onLootTableLoadEvent(LootTableLoadEvent event) {}
+    default void onModifyDefaultComponentsEvent(ModifyDefaultComponentsEvent event) {}
+    default void onPlayLevelSoundEvent(PlayLevelSoundEvent event) {}
+    default void onRegisterCommandsEvent(RegisterCommandsEvent event) {}
+    default void onServerChatEvent(ServerChatEvent event) {}
+    default void onStatAwardEvent(StatAwardEvent event) {}
+    default void onTagsUpdatedEvent(TagsUpdatedEvent event) {}
+    default void onVanillaGameEvent(VanillaGameEvent event) {}
+    default void onFurnaceFuelBurnItemEvent(FurnaceFuelBurnTimeEvent event) {}
 }
