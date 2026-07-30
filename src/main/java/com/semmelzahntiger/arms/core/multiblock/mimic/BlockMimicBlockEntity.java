@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
 public class BlockMimicBlockEntity extends BlockEntity {
     private BlockState mimicBlock = Blocks.AIR.defaultBlockState();
     private Vec3i controllerOffset = Vec3i.ZERO;
