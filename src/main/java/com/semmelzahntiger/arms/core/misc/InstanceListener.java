@@ -1,4 +1,4 @@
-﻿package com.semmelzahntiger.arms.core.misc;
+package com.semmelzahntiger.arms.core.misc;
 
 import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
