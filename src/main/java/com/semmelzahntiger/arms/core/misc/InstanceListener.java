@@ -125,7 +125,6 @@ public interface InstanceListener {
     default void onEntityPlaceEvent(BlockEvent.EntityPlaceEvent event) {}
     default void onFarmlandTrampleEvent(BlockEvent.FarmlandTrampleEvent event) {}
     default void onFluidPlaceBlockEvent(BlockEvent.FluidPlaceBlockEvent event) {}
-    default void onNeighbourNotifyEvent(BlockEvent.NeighborNotifyEvent event) {}
     default void onPortalSpawnEvent(BlockEvent.PortalSpawnEvent event) {}
     default void onBlockGrowFeatureEvent(BlockGrowFeatureEvent event) {}
     default void onChunkDataSaveEvent(ChunkDataEvent.Save event) {}

@@ -3,26 +3,38 @@ package com.semmelzahntiger.arms.common;
 import com.semmelzahntiger.arms.common.skeletons.Skeletons;
 import com.semmelzahntiger.arms.core.cts.CTSEntity;
 import com.semmelzahntiger.arms.core.cts.TestCTSData;
+import com.semmelzahntiger.arms.core.misc.InstanceEventDistributor;
+import com.semmelzahntiger.arms.core.misc.InstanceEventListener;
+import com.semmelzahntiger.arms.core.misc.InstanceListener;
 import com.semmelzahntiger.arms.core.obb.BoneId;
 import com.semmelzahntiger.arms.core.obb.OBBEntity;
 import com.semmelzahntiger.arms.core.obb.Pose;
 import com.semmelzahntiger.arms.core.obb.Skeleton;
 import com.semmelzahntiger.arms.helper.MatrixHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntity, TestCTSData>{
+@InstanceEventListener(events =
+        {
+                BlockEvent.PortalSpawnEvent.class,
+                ServerTickEvent.Pre.class
+        })
+public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntity, TestCTSData>, InstanceListener {
     private final Pose pose = new Pose(getSkeleton());
 
     public TestEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
+        InstanceEventDistributor.register(this);
     }
 
     @Override
@@ -33,6 +45,12 @@ public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntit
     @Override
     public @NotNull TestEntity getEntity() {
         return this;
+    }
+
+    @Override
+    public void remove(@NotNull RemovalReason reason) {
+        super.remove(reason);
+        InstanceEventDistributor.unregister(this);
     }
 
     @Override
@@ -76,4 +94,6 @@ public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntit
     public Skeleton getSkeleton() {
         return Skeletons.TEST_SKELETON;
     }
+
+
 }
