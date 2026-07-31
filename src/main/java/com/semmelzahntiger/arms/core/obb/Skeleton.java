@@ -16,14 +16,14 @@ import java.util.Set;
 /**
  * Rigid Skeleton of an OBB
  */
-public class Skeleton {
+public final class Skeleton {
     final Bone[] bones;
     final int[] subTreeEnd;
     final Part[][] partArray;
     final Map<BoneId, Integer> idIndexMap;
 
 
-    public Skeleton(Builder builder) {
+    private Skeleton(Builder builder) {
         this.bones = builder.sortedBones;
         this.subTreeEnd = builder.subTreeEnd;
         this.partArray = builder.partArray;
@@ -64,7 +64,7 @@ public class Skeleton {
         return partArray[index];
     }
 
-    public static class Builder {
+    public static final class Builder {
         private final Set<BoneId> occupiedBoneIds = new HashSet<>();
         private final List<Bone> bones = new ArrayList<>();
         private Bone[] sortedBones = null;
@@ -72,6 +72,19 @@ public class Skeleton {
         private Part[][] partArray = null;
         private final Map<BoneId, Integer> idIndexMap = new HashMap<>();
         private final Map<BoneId, List<Part>> parts = new HashMap<>();
+
+        public static Builder of() {
+            return new Builder();
+        }
+
+        /**
+         * Adds a new Bone to the OBBs Skeleton
+         * @param id Unique {@link BoneId}
+         * @param parent Parent Bone of the new Bone. Pass {@code null} if the bone is the root
+         * @param pivot Offset to its parents (or Entity origin for a bone with no parent
+         * @param initial Initial Rotation value for the bone
+         * @return Builder Instance
+         */
         public Builder bone(BoneId id, @Nullable BoneId parent, Vec3 pivot, Matrix3f initial) {
             if(occupiedBoneIds.contains(id)) {
                 LogUtil.getLogger().warn("Tried to register bone with id thats already registered, ignoring...");
@@ -86,6 +99,7 @@ public class Skeleton {
             bones.add(bone);
             return this;
         }
+
         public Builder bone(BoneId id, @Nullable BoneId parent, Vec3 pivot) {
             if(occupiedBoneIds.contains(id)) {
                 LogUtil.getLogger().warn("Tried to register bone with id thats already registered, ignoring...");
@@ -96,6 +110,14 @@ public class Skeleton {
             bones.add(bone);
             return this;
         }
+
+        /**
+         * Adds an AABB to a bone
+         * @param partName Name of the part
+         * @param boneId {@link BoneId} of the Bone the part should belong to
+         * @param localAABB AABB from the local Coordinate System of the Bone
+         * @return Builder Instance
+         */
         public Builder box(String partName, BoneId boneId, AABB localAABB) {
             if(!occupiedBoneIds.contains(boneId)) {
                 LogUtil.getLogger().warn("Tried adding Box to non existent Bone, ignoring...");
@@ -113,6 +135,10 @@ public class Skeleton {
             }
             return partArray;
         }
+
+        /**
+         * @return new Skeleton
+         */
         public Skeleton build() {
             TopoSort.SortResult result = TopoSort.sort(bones.toArray(new Bone[0]));
             sortedBones = result.sortedBones();

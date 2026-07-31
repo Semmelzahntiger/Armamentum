@@ -8,17 +8,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a type as an {@link InstanceListener} that wants the listed events dispatched to it.
- *
- * <p>Every event listed here across the whole mod gets a handler generated into
- * {@code InstanceEventDistributor}. Listing an event only opts it <em>into existence</em>: once any
- * type declares it, every registered listener that overrides the matching {@link InstanceListener}
- * method receives it. The inverse is the one to watch for — overriding an {@link InstanceListener}
- * method for an event that nobody declares here is a silent no-op.
- *
- * <p>Retention is deliberately {@link RetentionPolicy#CLASS}: {@code SOURCE} would break the
- * annotation processor's contract with Gradle's incremental compilation, which needs to see the
- * annotation in the compiled class files.
+ * Annotating classes with this {@link InstanceEventListener} creates a global handler for the specified events.
+ * It's required that classes annotated with {@link InstanceEventListener} also implement the {@link InstanceListener} interface
+ * Implementors are responsible to register themselves to the {@link InstanceEventDistributor} via {@link InstanceEventDistributor#register(InstanceListener)}
+ * and unregister themselves via {@link InstanceEventDistributor#unregister(InstanceListener)}. While the event distributor holds all listeners via a
+ * {@link java.lang.ref.WeakReference WeakReference} so the Garbage Collector can collect listeners already removed by the game its best to remove it yourself because
+ * it's not guaranteed that GC collects immediately when you want it to not listen anymore.
+ * See {@link InstanceListener} for a list of supported events and override if you need listening behaviour.
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)

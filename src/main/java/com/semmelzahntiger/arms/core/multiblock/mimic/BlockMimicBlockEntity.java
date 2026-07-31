@@ -1,5 +1,6 @@
 package com.semmelzahntiger.arms.core.multiblock.mimic;
 
+import com.semmelzahntiger.arms.core.multiblock.general.MultiBlockController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
@@ -71,7 +72,7 @@ public class BlockMimicBlockEntity extends BlockEntity {
         }
         BlockEntity controller = level.getBlockEntity(getBlockPos().offset(controllerOffset));
         if(controller instanceof MultiBlockController mbController) {
-            mbController.notifyPartRemoved();
+            mbController.notifyPartRemoved(getBlockPos());
         }
     }
 }

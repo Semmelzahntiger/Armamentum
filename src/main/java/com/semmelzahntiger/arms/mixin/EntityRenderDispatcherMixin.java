@@ -20,6 +20,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import util.LogUtil;
 
+/**
+ * Injects the OBB System into the F3+B hitbox rendering
+ */
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
     @Inject(method = "renderHitbox", at = @At("HEAD"))
