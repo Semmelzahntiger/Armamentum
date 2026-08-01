@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.core.multiblock.general;
+package com.semmelzahntiger.arms.common.blocks.multiblock.general;
 
 import com.semmelzahntiger.arms.core.misc.InstanceEventListener;
 import com.semmelzahntiger.arms.core.misc.InstanceListener;

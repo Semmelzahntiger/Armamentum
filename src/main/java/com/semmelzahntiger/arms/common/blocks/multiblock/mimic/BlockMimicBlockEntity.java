@@ -1,6 +1,6 @@
-package com.semmelzahntiger.arms.core.multiblock.mimic;
+package com.semmelzahntiger.arms.common.blocks.multiblock.mimic;
 
-import com.semmelzahntiger.arms.core.multiblock.general.MultiBlockController;
+import com.semmelzahntiger.arms.common.blocks.multiblock.general.MultiBlockController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;

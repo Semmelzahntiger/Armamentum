@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.core.multiblock.mimic;
+package com.semmelzahntiger.arms.common.blocks.multiblock.mimic;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
