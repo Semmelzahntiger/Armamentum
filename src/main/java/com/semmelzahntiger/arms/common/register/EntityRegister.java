@@ -2,7 +2,9 @@ package com.semmelzahntiger.arms.common.register;
 
 import com.semmelzahntiger.arms.Arms;
 import com.semmelzahntiger.arms.common.TestEntity;
+import com.semmelzahntiger.arms.common.entities.MG08;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -18,5 +20,10 @@ public class EntityRegister {
             () -> EntityType.Builder.of(TestEntity::new, MobCategory.MISC)
                     .eyeHeight(0.0f)
                     .build("test_entity")
+    );
+    public static final DeferredHolder<EntityType<?>, EntityType<Entity>> MG08_ENTITY = ENTITY_REGISTER.register(
+            "mg_08",
+            () -> EntityType.Builder.of((type, level) -> new MG08(level), MobCategory.MISC)
+                    .build("mg_08")
     );
 }

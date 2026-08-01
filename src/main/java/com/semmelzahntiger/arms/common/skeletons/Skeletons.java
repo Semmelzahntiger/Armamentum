@@ -9,6 +9,7 @@ import org.joml.Matrix3f;
 
 public class Skeletons {
     public static final Skeleton TEST_SKELETON;
+    public static final Skeleton MG08_SKELETON;
     static {
         BoneId main = new BoneId("TestMain");
         BoneId child = new BoneId("Child");
@@ -24,5 +25,6 @@ public class Skeletons {
                 .box("TestBox3",childRotated, new AABB(-1, -1, -1, 1,1,1))
                 .box("TestBox4", childRotatedChild, new AABB(-1, -1, -1, 1,1,1))
                 .build();
+        MG08_SKELETON = Skeleton.Builder.of().build();
     }
 }

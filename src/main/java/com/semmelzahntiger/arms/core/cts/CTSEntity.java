@@ -9,12 +9,4 @@ import java.util.function.Supplier;
 public interface CTSEntity<T extends Entity, D extends CTSData<T>> {
     @NotNull Supplier<D> getDataInstance();
     @NotNull T getEntity();
-
-    /**
-     * Client-Side Only. Used to Update CTSData
-     */
-    default void update() {
-        updateData(getEntity());
-    }
-    void updateData(@NotNull T entity);
 }
