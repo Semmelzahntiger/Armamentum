@@ -24,6 +24,9 @@ import java.util.function.Supplier;
 public class MG08 extends Entity implements CTSEntity<MG08, MG08Data>, OBBEntity, BEMountedGun, GeoAnimatable {
     private final AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
     private final Pose pose = new Pose(Skeletons.MG08_SKELETON);
+    private final int tickCooldown = 2;
+    private int currentTickCooldown = 0;
+    private @NotNull ItemStack ammoItem = ItemStack.EMPTY;
 
     public MG08(Level level) {
         super(EntityRegister.MG08_ENTITY.get(), level);
@@ -82,8 +85,17 @@ public class MG08 extends Entity implements CTSEntity<MG08, MG08Data>, OBBEntity
 
     @Override
     public void fire() {
+        if(currentTickCooldown <= 0) {
+            currentTickCooldown = tickCooldown;
+        }
+    }
 
-
+    @Override
+    public void tick() {
+        super.tick();
+        if(currentTickCooldown > 0) {
+            currentTickCooldown--;
+        }
     }
 
     @Override
@@ -92,8 +104,8 @@ public class MG08 extends Entity implements CTSEntity<MG08, MG08Data>, OBBEntity
     }
 
     @Override
-    public void setAmmoItem(ItemStack ammoItemStack) {
-
+    public void setAmmoItem(@NotNull ItemStack ammoItemStack) {
+        this.ammoItem = ammoItemStack;
     }
 
     @Override
