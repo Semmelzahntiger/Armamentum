@@ -21,9 +21,9 @@ public class EntityRegister {
                     .eyeHeight(0.0f)
                     .build("test_entity")
     );
-    public static final DeferredHolder<EntityType<?>, EntityType<Entity>> MG08_ENTITY = ENTITY_REGISTER.register(
+    public static final DeferredHolder<EntityType<?>, EntityType<MG08>> MG08_ENTITY = ENTITY_REGISTER.register(
             "mg_08",
-            () -> EntityType.Builder.of((type, level) -> new MG08(level), MobCategory.MISC)
+            () -> EntityType.Builder.of(MG08::new, MobCategory.MISC)
                     .build("mg_08")
     );
 }

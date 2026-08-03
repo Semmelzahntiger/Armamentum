@@ -4,7 +4,9 @@ import com.semmelzahntiger.arms.client.data.ClientDataManager;
 import com.semmelzahntiger.arms.client.events.ClientEventListeners;
 import com.semmelzahntiger.arms.client.events.RenderRegistrationEvents;
 import com.semmelzahntiger.arms.common.register.BlockEntityRegister;
+import com.semmelzahntiger.arms.common.register.BlockRegister;
 import com.semmelzahntiger.arms.common.register.EntityRegister;
+import com.semmelzahntiger.arms.common.register.ItemRegister;
 import com.semmelzahntiger.arms.core.misc.InstanceEventDistributor;
 import org.slf4j.Logger;
 
@@ -27,7 +29,9 @@ public class Arms {
         GAME_BUS.register(ServerTaskScheduler.class);
         modEventBus.register(RenderRegistrationEvents.class);
         EntityRegister.ENTITY_REGISTER.register(modEventBus);
+        BlockRegister.BLOCK_REGISTER.register(modEventBus);
         BlockEntityRegister.BLOCK_ENTITY_REGISTER.register(modEventBus);
+        ItemRegister.ITEM_REGISTER.register(modEventBus);
         ClientDataManager.init();
     }
 }

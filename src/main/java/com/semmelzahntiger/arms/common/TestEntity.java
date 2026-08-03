@@ -53,10 +53,6 @@ public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntit
         InstanceEventDistributor.unregister(this);
     }
 
-    @Override
-    public void updateData(@NotNull TestEntity entity) {
-
-    }
 
     @Override
     public void tick() {

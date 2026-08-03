@@ -3,6 +3,11 @@
   "block.arms.example_block": "Example Block",
   "item.arms.example_item": "Example Item",
 
+  "block.arms.small_base": "Small Base",
+  "item.arms.base_block": "Small Base",
+  "entity.arms.mg_08": "MG 08",
+  "entity.arms.test_entity": "Test Entity",
+
   "arms.configuration.title": "Arms Configs",
   "arms.configuration.section.arms.common.toml": "Arms Configs",
   "arms.configuration.section.arms.common.toml.title": "Arms Configs",

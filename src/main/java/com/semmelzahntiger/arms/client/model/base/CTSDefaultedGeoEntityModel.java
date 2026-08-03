@@ -1,9 +1,8 @@
-package com.semmelzahntiger.arms.client.model;
+package com.semmelzahntiger.arms.client.model.base;
 
 import com.semmelzahntiger.arms.core.cts.CTSData;
 import com.semmelzahntiger.arms.core.cts.CTSEntity;
 import com.semmelzahntiger.arms.core.cts.CTSManager;
-import com.semmelzahntiger.arms.core.cts.TestCTSData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import software.bernie.geckolib.animatable.GeoAnimatable;

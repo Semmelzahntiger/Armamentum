@@ -14,6 +14,6 @@ public class BlockRegister {
 
 
     public static final DeferredHolder<Block, SmallBase> BASE_BLOCK = BLOCK_REGISTER.register("small_base", () -> new SmallBase(
-            BlockBehaviour.Properties.of()
+            BlockBehaviour.Properties.of().noOcclusion()
     ));
 }
