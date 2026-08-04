@@ -57,8 +57,8 @@ public class TestEntity extends Entity implements OBBEntity, CTSEntity<TestEntit
     @Override
     public void tick() {
         super.tick();
-        getOBBPose().addRotation(new BoneId("TestMain"), MatrixHelper.getRotationMatrix(2, 2,2));
-        getOBBPose().addRotation(new BoneId("ChildRotated"), MatrixHelper.getRotationMatrix(0, 6,0));
+//        getOBBPose().addRotation(new BoneId("main"), MatrixHelper.getRotationMatrix(2, 2,2));
+//        getOBBPose().addRotation(new BoneId("ChildRotated"), MatrixHelper.getRotationMatrix(0, 6,0));
     }
 
     @Override

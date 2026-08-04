@@ -14,6 +14,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -23,6 +25,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.function.Supplier;
 
 public class MG08 extends Entity implements CTSEntity<MG08, MG08Data>, OBBEntity, BEMountedGun, GeoAnimatable {
+    private Vec3 ownerPos = null;
     private final AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
     private final Pose pose = new Pose(Skeletons.MG08_SKELETON);
     private final int tickCooldown = 2;
@@ -112,5 +115,14 @@ public class MG08 extends Entity implements CTSEntity<MG08, MG08Data>, OBBEntity
     @Override
     public void toggleAutoFire(boolean fire) {
 
+    }
+    @Override
+    public @NotNull AABB getBoundingBox() {
+        return pose.getEncapsulatingAABB(position());
+    }
+
+    @Override
+    public void setOwnerPos(Vec3 ownerPos) {
+        this.ownerPos = ownerPos;
     }
 }
