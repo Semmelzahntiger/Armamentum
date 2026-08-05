@@ -3,6 +3,8 @@ package com.semmelzahntiger.arms.common.blocks;
 import com.semmelzahntiger.arms.common.blockentities.BaseBlockEntity;
 import com.semmelzahntiger.arms.common.items.MountableWeaponItem;
 import com.semmelzahntiger.arms.common.items.UnmounterItem;
+import com.semmelzahntiger.arms.common.register.BlockEntityRegister;
+import com.semmelzahntiger.arms.helper.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -13,11 +15,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -25,6 +28,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import util.LogUtil;
 
 public abstract class AbstractBase extends Block implements EntityBlock {
     public static final BooleanProperty POWERED = RedstoneTorchBlock.LIT;
@@ -70,22 +74,23 @@ public abstract class AbstractBase extends Block implements EntityBlock {
     }
 
     @Override
-    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
         if(level.hasNeighborSignal(pos)) {
             state.setValue(POWERED, true);
             BaseBlockEntity be = (BaseBlockEntity) level.getBlockEntity(pos);
             if(be != null) {
-                be.setEnabled(true);
+                be.setPowered(true);
             }
+            LogUtil.getLogger().info("500 PS");
         }
         else {
             state.setValue(POWERED, false);
             BaseBlockEntity be = (BaseBlockEntity) level.getBlockEntity(pos);
             if(be != null) {
-                be.setEnabled(false);
+                be.setPowered(false);
             }
         }
-        super.onNeighborChange(state, level, pos, neighbor);
     }
 
     @Override
@@ -108,4 +113,10 @@ public abstract class AbstractBase extends Block implements EntityBlock {
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return MiscUtil.createTickerHelper(type, BlockEntityRegister.BASE_BE.get(), BaseBlockEntity::tick);
+    }
+
 }

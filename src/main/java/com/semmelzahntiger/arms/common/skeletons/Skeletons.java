@@ -10,6 +10,7 @@ import org.joml.Matrix3f;
 public class Skeletons {
     public static final Skeleton TEST_SKELETON;
     public static final Skeleton MG08_SKELETON;
+    public static final Skeleton MG08DUAL_SKELETON;
     static {
         BoneId main = new BoneId("main");
         BoneId child = new BoneId("Child");
@@ -29,6 +30,11 @@ public class Skeletons {
         MG08_SKELETON = Skeleton.Builder.of()
                 .bone(mgmain, null, Vec3.ZERO, new Matrix3f())
                 .box("body", mgmain, new AABB((double) -7 /32, 0, -0.5, (double) 7 /32, 0.5,0.5))
+                .build();
+        MG08DUAL_SKELETON = Skeleton.Builder.of()
+                .bone(mgmain, null, Vec3.ZERO, new Matrix3f())
+                .box("leftBody", mgmain, new AABB((double) -7 /32, 0,-0.5, (double) -2 /32, 0.5, 0.5))
+                .box("rightBody", mgmain, new AABB((double) 2 /32,0,-0.5, (double) 7 /32, 0.5, 0.5))
                 .build();
     }
 }

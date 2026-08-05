@@ -7,6 +7,7 @@ import com.semmelzahntiger.arms.common.register.BlockEntityRegister;
 import com.semmelzahntiger.arms.common.register.BlockRegister;
 import com.semmelzahntiger.arms.common.register.EntityRegister;
 import com.semmelzahntiger.arms.common.register.ItemRegister;
+import com.semmelzahntiger.arms.common.register.SoundRegister;
 import com.semmelzahntiger.arms.core.misc.InstanceEventDistributor;
 import org.slf4j.Logger;
 
@@ -32,6 +33,7 @@ public class Arms {
         BlockRegister.BLOCK_REGISTER.register(modEventBus);
         BlockEntityRegister.BLOCK_ENTITY_REGISTER.register(modEventBus);
         ItemRegister.ITEM_REGISTER.register(modEventBus);
+        SoundRegister.SOUND_EVENTS.register(modEventBus);
         ClientDataManager.init();
     }
 }

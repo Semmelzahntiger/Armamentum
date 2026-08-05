@@ -1,2 +1,14 @@
 {
+  "shot": {
+    "subtitle": "subtitle.arms.shot",
+    "sounds": [
+      {
+        "name": "arms:shot",
+        "volume": 1.0,
+        "pitch": 1.0,
+        "weight": 1,
+        "attenuation_distance": 16
+      }
+    ]
+  }
 }
