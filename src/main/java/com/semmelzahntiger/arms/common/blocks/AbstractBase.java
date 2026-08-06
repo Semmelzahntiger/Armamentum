@@ -47,7 +47,7 @@ public abstract class AbstractBase extends Block implements EntityBlock {
     protected abstract int getPlatformSize();
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         Item item = stack.getItem();
         if(item instanceof MountableWeaponItem<?> mountableWeaponItem && mountableWeaponItem.requiredSize() == getPlatformSize()) {
             BaseBlockEntity blockEntity = getBaseBlockEntity(level, pos);
@@ -91,6 +91,9 @@ public abstract class AbstractBase extends Block implements EntityBlock {
                 be.setPowered(false);
             }
         }
+    }
+    public void setPowered(boolean powered, Level level, BlockPos pos) {
+        level.getBlockState(pos).setValue(POWERED, powered);
     }
 
     @Override
