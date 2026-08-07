@@ -16,8 +16,11 @@ public class BlockEntityRegister {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BaseBlockEntity>> BASE_BE = BLOCK_ENTITY_REGISTER.register(
             "base_block_entity",
             () -> BlockEntityType.Builder.of(
-                    BaseBlockEntity::new,
-                    BlockRegister.BASE_BLOCK.get())
+                            BaseBlockEntity::new,
+                            BlockRegister.BASE_BLOCK.get(),
+                            BlockRegister.MEDIUM_BASE_BLOCK.get(),
+                            BlockRegister.LARGE_BASE_BLOCK.get()
+                    )
                     .build(null)
     );
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BaseBlockEntityExtension>> BASE_BE_EXTENSION = BLOCK_ENTITY_REGISTER.register(

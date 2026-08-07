@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
+import util.LogUtil;
 
 public class BaseExtension extends Block implements EntityBlock {
     @Override
@@ -33,4 +34,15 @@ public class BaseExtension extends Block implements EntityBlock {
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        BaseBlockEntityExtension extension = (BaseBlockEntityExtension) level.getBlockEntity(pos);
+        if(extension instanceof BaseBlockEntityExtension ext) {
+            BlockPos ownerPos = pos.offset(ext.getOwnerPosOffset());
+            if(level.getBlockState(ownerPos).getBlock() instanceof AbstractMultiBase) {
+                level.removeBlock(ownerPos, false);
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
 }

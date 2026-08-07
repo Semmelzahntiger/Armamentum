@@ -24,11 +24,4 @@ public class MediumBase extends AbstractMultiBase {
     protected int getPlatformSize() {
         return 2;
     }
-
-    @Override
-    public @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-    }
-
-
 }

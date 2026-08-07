@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +25,10 @@ public abstract class AbstractMultiBase extends AbstractBase {
     public List<Vec3i> createOffsets() {
         List<Vec3i> offsetList = new ArrayList<>();
         int size = getPlatformSize();
-        // For even numbers, shift by one to correct out offset boundaries
+        // For even numbers, shift min by +1 one to correct out the "0" coordinate
         int shift = size % 2 == 0 ? 1 : 0;
-        int min = -Math.ceilDiv(size, 2) + shift;
-        int max = Math.floorDiv(size, 2);
+        int min = (int) (-Math.floor((double) size /2) + shift);
+        int max = (int) Math.floor((double) size/2);
 
         for (int x = min; x <= max; x++) {
             for (int z = min; z <= max; z++) {
@@ -68,13 +69,14 @@ public abstract class AbstractMultiBase extends AbstractBase {
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        super.onRemove(state, level, pos, newState, movedByPiston);
         for (Vec3i offset : getOffsets()) {
-            BlockState oldState = level.getBlockState(pos.offset(offset));
+            BlockPos offsetPos = pos.offset(offset);
+            BlockState oldState = level.getBlockState(offsetPos);
             if(oldState.getBlock() instanceof BaseExtension) {
-                level.removeBlock(pos, false);
+                level.removeBlock(offsetPos, false);
             }
         }
-    }
+        super.onRemove(state, level, pos, newState, movedByPiston);
 
+    }
 }

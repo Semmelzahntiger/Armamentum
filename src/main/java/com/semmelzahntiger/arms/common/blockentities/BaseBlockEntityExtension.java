@@ -4,7 +4,9 @@ import com.semmelzahntiger.arms.common.blocks.AbstractBase;
 import com.semmelzahntiger.arms.common.blocks.AbstractMultiBase;
 import com.semmelzahntiger.arms.common.register.BlockEntityRegister;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -33,15 +35,23 @@ public class BaseBlockEntityExtension extends BlockEntity {
         return ItemInteractionResult.FAIL;
     }
 
+
+
     @Override
-    public void setRemoved() {
-        Level level = getLevel();
-        if(level != null) {
-            BlockState state = level.getBlockState(getBlockPos().offset(ownerBlockPosOffset));
-            if(state.getBlock() instanceof AbstractMultiBase base) {
-                level.removeBlock(getBlockPos().offset(ownerBlockPosOffset), false);
-            }
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        if(ownerBlockPosOffset != null) {
+            tag.putInt("ownerX", ownerBlockPosOffset.getX());
+            tag.putInt("ownerY", ownerBlockPosOffset.getY());
+            tag.putInt("ownerZ", ownerBlockPosOffset.getZ());
         }
-        super.setRemoved();
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        if(tag.contains("ownerX") && tag.contains("ownerY") && tag.contains("ownerZ")) {
+            ownerBlockPosOffset = new Vec3i(tag.getInt("ownerX"), tag.getInt("ownerY"), tag.getInt("ownerZ"));
+        }
     }
 }

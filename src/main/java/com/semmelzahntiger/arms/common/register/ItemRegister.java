@@ -1,9 +1,11 @@
 package com.semmelzahntiger.arms.common.register;
 
 import com.semmelzahntiger.arms.Arms;
+import com.semmelzahntiger.arms.common.blocks.MediumBase;
 import com.semmelzahntiger.arms.common.items.BaseBlockItem;
 import com.semmelzahntiger.arms.common.items.MG08DualItem;
 import com.semmelzahntiger.arms.common.items.MG08Item;
+import com.semmelzahntiger.arms.common.items.MultiBaseBlockItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -16,6 +18,14 @@ public class ItemRegister {
     public static final DeferredHolder<Item, BaseBlockItem> BASE_BLOCK_ITEM = ITEM_REGISTER.register(
       "small_base",
             () -> new BaseBlockItem(BlockRegister.BASE_BLOCK.get(), new Item.Properties())
+    );
+    public static final DeferredHolder<Item, MultiBaseBlockItem> MEDIUM_BASE_BLOCK_ITEM = ITEM_REGISTER.register(
+            "medium_base",
+            () -> new MultiBaseBlockItem(BlockRegister.MEDIUM_BASE_BLOCK.get(), new Item.Properties())
+    );
+    public static final DeferredHolder<Item, MultiBaseBlockItem> LARGE_BASE_BLOCK_ITEM = ITEM_REGISTER.register(
+            "large_base",
+            () -> new MultiBaseBlockItem(BlockRegister.LARGE_BASE_BLOCK.get(), new Item.Properties())
     );
     public static final DeferredHolder<Item, MG08Item> MG_08_ITEM = ITEM_REGISTER.register(
             "mg_08",

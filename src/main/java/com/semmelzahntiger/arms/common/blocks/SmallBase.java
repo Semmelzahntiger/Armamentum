@@ -7,6 +7,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+
 public class SmallBase extends AbstractBase {
     public SmallBase(Properties properties) {
         super(properties);
