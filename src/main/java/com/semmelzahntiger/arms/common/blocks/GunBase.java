@@ -2,15 +2,21 @@ package com.semmelzahntiger.arms.common.blocks;
 
 import com.semmelzahntiger.arms.common.blockentities.GunBaseBlockEntity;
 import com.semmelzahntiger.arms.common.entities.GunEntity;
+import com.semmelzahntiger.arms.helper.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import util.LogUtil;
@@ -23,14 +29,26 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlockEntity<G>> extends Block implements EntityBlock {
-    protected Map<, List<Vec3i>> offsets = new HashMap<>();
+
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final BooleanProperty WALL_MOUNTED = BooleanProperty.create("wall_mounted");
+
+    public record Orientation(boolean wallMounted, Direction facing) {}
+    protected final Map<Orientation, List<Vec3i>> offsets;
+
     public GunBase(Properties properties) {
         super(properties);
+        this.offsets = buildOffsets();
+        registerDefaultState(stateDefinition.any()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(WALL_MOUNTED, false));
     }
 
     public abstract Class<G> getGunEntityClass();
 
     public abstract BiFunction<BlockPos, BlockState, B> getBlockEntityFactory();
+
+    public abstract GunBaseExtension<G,B> getExtensionType();
 
     public abstract Function<Level, G> getEntityFactory();
 
@@ -60,6 +78,76 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
         return offsets;
     }
 
+    protected List<Vec3i> generateWallOffsets() {
+        List<Vec3i> offsets = new ArrayList<>();
+        int width = getPlatformWidth();
+        int length = getPlatformLength();
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < length; y++) {
+                if(x == 0 && y == 0) continue;
+                offsets.add(new Vec3i(x, y, 0));
+            }
+        }
+        return offsets;
+    }
+
+    protected Map<Orientation, List<Vec3i>> buildOffsets() {
+        Map<Orientation, List<Vec3i>> map = new HashMap<>();
+        List<Vec3i> floorBase = generateOffsets();
+        List<Vec3i> wallBase = canPlaceOnWall() ? generateWallOffsets() : null;
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            map.put(new Orientation(false, facing), rotateAll(floorBase, facing));
+            if (wallBase != null) {
+                map.put(new Orientation(true, facing), rotateAll(wallBase, facing));
+            }
+        }
+        return map;
+    }
+
+    private static List<Vec3i> rotateAll(List<Vec3i> base, Direction facing) {
+        List<Vec3i> out = new ArrayList<>(base.size());
+        for (Vec3i v : base) {
+            out.add(MiscUtil.rotateOffsetToFacing(v, facing));
+        }
+        return out;
+    }
+
+    /** The structure cell offsets for the orientation this state was placed with. */
+    public List<Vec3i> getActiveOffsets(BlockState state) {
+        return offsets.getOrDefault(
+                new Orientation(state.getValue(WALL_MOUNTED), state.getValue(FACING)),
+                List.of());
+    }
+
+    protected boolean areOffsetsFree(Level level, BlockPos pos, BlockState state) {
+        for (Vec3i offset : getActiveOffsets(state)) {
+            if (!level.getBlockState(pos.offset(offset)).canBeReplaced()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING, WALL_MOUNTED);
+    }
+
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction clicked = context.getClickedFace();
+        boolean wall = clicked.getAxis().isHorizontal();
+        if (wall && !canPlaceOnWall()) {
+            return null;
+        }
+        BlockState state = defaultBlockState()
+                .setValue(WALL_MOUNTED, wall)
+                // wall: gun points out of the wall (clicked face). floor: points where the player looks.
+                .setValue(FACING, wall ? clicked : context.getHorizontalDirection());
+
+        return areOffsetsFree(context.getLevel(), context.getClickedPos(), state) ? state : null;
+    }
 
     @Override
     public final @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -73,6 +161,7 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
+        placeStructure(level, pos, state);
         GunBaseBlockEntity<G> gunBase = getGunBaseBlockEntity(level, pos);
         if(gunBase == null) {
             LogUtil.getLogger().warn("No BlockEntity detected.");
@@ -84,6 +173,13 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
         level.addFreshEntity(entity);
         entity.setPos(offsetPos);
         gunBase.setManagedEntity(entity);
+    }
+
+    protected void placeStructure(Level level, BlockPos pos, BlockState state) {
+        for (Vec3i offset : getActiveOffsets(state)) {
+            BlockPos cell = pos.offset(offset);
+            // TODO: place & link the gun
+        }
     }
 
     @Override

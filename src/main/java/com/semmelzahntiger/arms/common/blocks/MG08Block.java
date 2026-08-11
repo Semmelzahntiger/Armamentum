@@ -25,6 +25,11 @@ public class MG08Block extends GunBase<MG08Gun, MG08BlockEntity> {
     }
 
     @Override
+    public GunBaseExtension<MG08Gun, MG08BlockEntity> getExtensionType() {
+        return new GenericGunBaseExtension<>(Properties.of(), MG08Gun.class);
+    }
+
+    @Override
     public Function<Level, MG08Gun> getEntityFactory() {
         return level -> new MG08Gun(null, level);
     }
