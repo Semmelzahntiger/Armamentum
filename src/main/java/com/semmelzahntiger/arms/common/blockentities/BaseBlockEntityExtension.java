@@ -1,7 +1,6 @@
 package com.semmelzahntiger.arms.common.blockentities;
 
-import com.semmelzahntiger.arms.common.blocks.AbstractBase;
-import com.semmelzahntiger.arms.common.blocks.AbstractMultiBase;
+import com.semmelzahntiger.arms.common.blocks.mountablebases.AbstractBase;
 import com.semmelzahntiger.arms.common.register.BlockEntityRegister;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

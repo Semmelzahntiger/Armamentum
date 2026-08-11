@@ -1,5 +1,6 @@
 package com.semmelzahntiger.arms.core.cts;
 
+import net.minecraft.data.DataProvider;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 

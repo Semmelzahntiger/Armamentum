@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.common.blocks;
+package com.semmelzahntiger.arms.common.blocks.mountablebases;
 
 import com.semmelzahntiger.arms.common.blockentities.BaseBlockEntityExtension;
 import net.minecraft.core.BlockPos;
@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-import util.LogUtil;
 
 public class BaseExtension extends Block implements EntityBlock {
     @Override

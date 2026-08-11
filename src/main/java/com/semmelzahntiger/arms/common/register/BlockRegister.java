@@ -1,13 +1,11 @@
 package com.semmelzahntiger.arms.common.register;
 
 import com.semmelzahntiger.arms.Arms;
-import com.semmelzahntiger.arms.common.blocks.BaseExtension;
-import com.semmelzahntiger.arms.common.blocks.LargeBase;
-import com.semmelzahntiger.arms.common.blocks.MediumBase;
-import com.semmelzahntiger.arms.common.blocks.SmallBase;
-import net.minecraft.core.registries.BuiltInRegistries;
+import com.semmelzahntiger.arms.common.blocks.mountablebases.BaseExtension;
+import com.semmelzahntiger.arms.common.blocks.mountablebases.LargeBase;
+import com.semmelzahntiger.arms.common.blocks.mountablebases.MediumBase;
+import com.semmelzahntiger.arms.common.blocks.mountablebases.SmallBase;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;

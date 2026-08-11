@@ -1,14 +1,11 @@
 package com.semmelzahntiger.arms.common.register;
 
 import com.semmelzahntiger.arms.Arms;
-import com.semmelzahntiger.arms.common.blocks.MediumBase;
 import com.semmelzahntiger.arms.common.items.BaseBlockItem;
 import com.semmelzahntiger.arms.common.items.MG08DualItem;
 import com.semmelzahntiger.arms.common.items.MG08Item;
 import com.semmelzahntiger.arms.common.items.MultiBaseBlockItem;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 

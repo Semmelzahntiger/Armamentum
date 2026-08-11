@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.common.blocks;
+package com.semmelzahntiger.arms.common.blocks.mountablebases;
 
 public class LargeBase extends AbstractMultiBase {
 

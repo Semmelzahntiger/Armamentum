@@ -22,4 +22,16 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     public void setManagedEntity(T entity) {
         this.entity = entity;
     }
+    public T getManagedEntity() {
+        return entity;
+    }
+    public void onBlockRemove() {
+        T entity = getManagedEntity();
+        if(entity != null) {
+            entity.discard();
+            setManagedEntity(null);
+        }
+    }
+
+
 }

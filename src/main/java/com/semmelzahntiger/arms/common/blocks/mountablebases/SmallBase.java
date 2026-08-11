@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.common.blocks;
+package com.semmelzahntiger.arms.common.blocks.mountablebases;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;

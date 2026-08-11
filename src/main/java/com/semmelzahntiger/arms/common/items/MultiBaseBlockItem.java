@@ -1,11 +1,10 @@
 package com.semmelzahntiger.arms.common.items;
 
-import com.semmelzahntiger.arms.common.blocks.AbstractMultiBase;
+import com.semmelzahntiger.arms.common.blocks.mountablebases.AbstractMultiBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 

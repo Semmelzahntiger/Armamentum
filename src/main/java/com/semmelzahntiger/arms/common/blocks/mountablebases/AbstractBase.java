@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.common.blocks;
+package com.semmelzahntiger.arms.common.blocks.mountablebases;
 
 import com.semmelzahntiger.arms.common.blockentities.BaseBlockEntity;
 import com.semmelzahntiger.arms.common.items.MountableWeaponItem;
@@ -28,7 +28,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import util.LogUtil;
 
 public abstract class AbstractBase extends Block implements EntityBlock {
     public static final BooleanProperty POWERED = RedstoneTorchBlock.LIT;
@@ -82,7 +81,6 @@ public abstract class AbstractBase extends Block implements EntityBlock {
             if(be != null) {
                 be.setPowered(true);
             }
-            LogUtil.getLogger().info("500 PS");
         }
         else {
             state.setValue(POWERED, false);
