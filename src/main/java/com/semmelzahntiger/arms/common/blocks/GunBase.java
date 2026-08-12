@@ -1,6 +1,7 @@
 package com.semmelzahntiger.arms.common.blocks;
 
 import com.semmelzahntiger.arms.common.blockentities.GunBaseBlockEntity;
+import com.semmelzahntiger.arms.common.blockentities.GunBaseExtensionBlockEntity;
 import com.semmelzahntiger.arms.common.entities.GunEntity;
 import com.semmelzahntiger.arms.helper.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import util.LogUtil;
 
@@ -44,13 +46,14 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
                 .setValue(WALL_MOUNTED, false));
     }
 
-    public abstract Class<G> getGunEntityClass();
+    public abstract @NotNull Class<G> getGunEntityClass();
 
-    public abstract BiFunction<BlockPos, BlockState, B> getBlockEntityFactory();
+    public abstract @NotNull BiFunction<BlockPos, BlockState, B> getBlockEntityFactory();
 
-    public abstract GunBaseExtension<G,B> getExtensionType();
+    // Return null if multi block is 1x1
+    public abstract @Nullable GunBaseExtension<G> getExtensionType();
 
-    public abstract Function<Level, G> getEntityFactory();
+    public abstract @NotNull Function<Level, G> getEntityFactory();
 
     public int getPlatformLength() {
         return 1;
@@ -143,7 +146,6 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
         }
         BlockState state = defaultBlockState()
                 .setValue(WALL_MOUNTED, wall)
-                // wall: gun points out of the wall (clicked face). floor: points where the player looks.
                 .setValue(FACING, wall ? clicked : context.getHorizontalDirection());
 
         return areOffsetsFree(context.getLevel(), context.getClickedPos(), state) ? state : null;
@@ -161,7 +163,6 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        placeStructure(level, pos, state);
         GunBaseBlockEntity<G> gunBase = getGunBaseBlockEntity(level, pos);
         if(gunBase == null) {
             LogUtil.getLogger().warn("No BlockEntity detected.");
@@ -173,12 +174,20 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
         level.addFreshEntity(entity);
         entity.setPos(offsetPos);
         gunBase.setManagedEntity(entity);
+        placeStructure(level, pos, state, gunBase);
     }
-
-    protected void placeStructure(Level level, BlockPos pos, BlockState state) {
+    @SuppressWarnings("unchecked")
+    protected void placeStructure(Level level, BlockPos pos, BlockState state, GunBaseBlockEntity<G> blockEntity) {
+        GunBaseExtension<G> extensionType = getExtensionType();
+        if(extensionType == null) {
+            return;
+        }
+        BlockState extensionBlockState = extensionType.defaultBlockState();
         for (Vec3i offset : getActiveOffsets(state)) {
-            BlockPos cell = pos.offset(offset);
-            // TODO: place & link the gun
+            BlockPos offsetPos = pos.offset(offset);
+            level.setBlockAndUpdate(offsetPos, extensionBlockState);
+            GunBaseExtensionBlockEntity<G> extensionBlockEntity = (GunBaseExtensionBlockEntity<G>) level.getBlockEntity(offsetPos);
+            extensionBlockEntity.setLinkedBlockEntity(blockEntity);
         }
     }
 
@@ -187,6 +196,16 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
         GunBaseBlockEntity<G> gunBaseBlockEntity = getGunBaseBlockEntity(level, pos);
         if(gunBaseBlockEntity != null) {
             gunBaseBlockEntity.onBlockRemove();
+        }
+        GunBaseExtension<G> extensionType = getExtensionType();
+        if(extensionType != null) {
+            for (Vec3i activeOffset : getActiveOffsets(state)) {
+                BlockPos extensionPos = pos.offset(activeOffset);
+                if(!level.getBlockState(extensionPos).is(extensionType)) {
+                    continue;
+                }
+                level.removeBlock(extensionPos, false);
+            }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

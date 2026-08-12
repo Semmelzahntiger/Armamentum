@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class GenericGunBaseExtension<G extends Entity & GunEntity, B extends GunBaseBlockEntity<G>> extends GunBaseExtension<G,B>{
+public class GenericGunBaseExtension<G extends Entity & GunEntity> extends GunBaseExtension<G>{
     protected final Class<G> gunType;
     public GenericGunBaseExtension(Properties properties, Class<G> gunType) {
         super(properties);

@@ -5,7 +5,9 @@ import com.semmelzahntiger.arms.common.entities.MG08Gun;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -15,22 +17,22 @@ public class MG08Block extends GunBase<MG08Gun, MG08BlockEntity> {
     }
 
     @Override
-    public Class<MG08Gun> getGunEntityClass() {
+    public @NotNull Class<MG08Gun> getGunEntityClass() {
         return MG08Gun.class;
     }
 
     @Override
-    public BiFunction<BlockPos, BlockState, MG08BlockEntity> getBlockEntityFactory() {
-        return (pos, state) -> new MG08BlockEntity(null, pos, state, MG08Gun.class);
+    public @NotNull BiFunction<BlockPos, BlockState, MG08BlockEntity> getBlockEntityFactory() {
+        return (pos, state) -> new MG08BlockEntity(null, pos, state, MG08Gun.class, getActiveOffsets(state));
     }
 
     @Override
-    public GunBaseExtension<MG08Gun, MG08BlockEntity> getExtensionType() {
-        return new GenericGunBaseExtension<>(Properties.of(), MG08Gun.class);
+    public @Nullable GunBaseExtension<MG08Gun> getExtensionType() {
+        return null;
     }
 
     @Override
-    public Function<Level, MG08Gun> getEntityFactory() {
+    public @NotNull Function<Level, MG08Gun> getEntityFactory() {
         return level -> new MG08Gun(null, level);
     }
 }
