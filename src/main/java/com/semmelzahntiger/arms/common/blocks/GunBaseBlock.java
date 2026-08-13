@@ -12,11 +12,11 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -30,13 +30,13 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlockEntity<G>> extends Block implements EntityBlock {
+public abstract class GunBaseBlock<G extends Entity & GunEntity, B extends GunBaseBlockEntity<G>> extends Block implements EntityBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     protected final Map<Direction, List<Vec3i>> offsets;
 
-    public GunBase(Properties properties) {
+    public GunBaseBlock(Properties properties) {
         super(properties);
         this.offsets = buildOffsets();
         registerDefaultState(stateDefinition.any()
@@ -48,7 +48,7 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
     public abstract @NotNull BiFunction<BlockPos, BlockState, B> getBlockEntityFactory();
 
     // Can return null if multi block is 1x1
-    public abstract @Nullable GunBaseExtension<G> getExtensionType();
+    public abstract @Nullable GunBaseBlockExtension<G> getExtensionType();
 
     public abstract @NotNull Function<Level, G> getEntityFactory();
 
@@ -110,6 +110,9 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
         }
         return true;
     }
+    public List<Vec3i> getOffsetsFromDirection(Direction direction) {
+        return offsets.get(direction);
+    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -150,7 +153,7 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
     }
     @SuppressWarnings("unchecked")
     protected void placeStructure(Level level, BlockPos pos, BlockState state, GunBaseBlockEntity<G> blockEntity) {
-        GunBaseExtension<G> extensionType = getExtensionType();
+        GunBaseBlockExtension<G> extensionType = getExtensionType();
         if(extensionType == null) {
             return;
         }
@@ -169,7 +172,7 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
         if(gunBaseBlockEntity != null) {
             gunBaseBlockEntity.onBlockRemove();
         }
-        GunBaseExtension<G> extensionType = getExtensionType();
+        GunBaseBlockExtension<G> extensionType = getExtensionType();
         if(extensionType != null) {
             for (Vec3i activeOffset : getActiveOffsets(state)) {
                 BlockPos extensionPos = pos.offset(activeOffset);
@@ -180,5 +183,10 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
+    protected @NotNull RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
     }
 }

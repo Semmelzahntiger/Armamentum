@@ -1,6 +1,5 @@
 package com.semmelzahntiger.arms.common.blockentities;
 
-import com.semmelzahntiger.arms.common.blocks.GunBase;
 import com.semmelzahntiger.arms.common.entities.GunEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;

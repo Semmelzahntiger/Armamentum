@@ -3,10 +3,7 @@ package com.semmelzahntiger.arms.common.register;
 import com.semmelzahntiger.arms.Arms;
 import com.semmelzahntiger.arms.common.TestEntity;
 import com.semmelzahntiger.arms.common.entities.MG08;
-import com.semmelzahntiger.arms.common.entities.MG08Dual;
-import com.semmelzahntiger.arms.common.entities.MG08Gun;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -23,19 +20,9 @@ public class EntityRegister {
                     .eyeHeight(0.0f)
                     .build("test_entity")
     );
-    public static final DeferredHolder<EntityType<?>, EntityType<MG08>> MG08_ENTITY = ENTITY_REGISTER.register(
-            "mg_08_old",
-            () -> EntityType.Builder.of(MG08::new, MobCategory.MISC)
-                    .build("mg_08_old")
-    );
-    public static final DeferredHolder<EntityType<?>, EntityType<MG08Dual>> MG08DUAL_ENTITY = ENTITY_REGISTER.register(
-            "mg_08_dual",
-            () -> EntityType.Builder.of(MG08Dual::new, MobCategory.MISC)
-                    .build("mg_08_dual")
-    );
-    public static final DeferredHolder<EntityType<?>, EntityType<MG08Gun>> MG08_GUN = ENTITY_REGISTER.register(
+    public static final DeferredHolder<EntityType<?>, EntityType<MG08>> MG08_GUN = ENTITY_REGISTER.register(
             "mg_08",
-            () -> EntityType.Builder.of(MG08Gun::new, MobCategory.MISC)
+            () -> EntityType.Builder.of(MG08::new, MobCategory.MISC)
                     .build("mg_08")
     );
 }

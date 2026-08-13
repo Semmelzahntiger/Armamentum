@@ -1,15 +1,9 @@
 package com.semmelzahntiger.arms.common.register;
 
 import com.semmelzahntiger.arms.Arms;
-import com.semmelzahntiger.arms.common.blockentities.BaseBlockEntity;
-import com.semmelzahntiger.arms.common.blockentities.BaseBlockEntityExtension;
-import com.semmelzahntiger.arms.common.blockentities.GunBaseBlockEntity;
 import com.semmelzahntiger.arms.common.blockentities.MG08BlockEntity;
-import com.semmelzahntiger.arms.common.entities.GunEntity;
-import com.semmelzahntiger.arms.common.entities.MG08Gun;
+import com.semmelzahntiger.arms.common.entities.MG08;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -19,27 +13,10 @@ public class BlockEntityRegister {
             BuiltInRegistries.BLOCK_ENTITY_TYPE,
             Arms.MODID
     );
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BaseBlockEntity>> BASE_BE = BLOCK_ENTITY_REGISTER.register(
-            "base_block_entity",
-            () -> BlockEntityType.Builder.of(
-                            BaseBlockEntity::new,
-                            BlockRegister.BASE_BLOCK.get(),
-                            BlockRegister.MEDIUM_BASE_BLOCK.get(),
-                            BlockRegister.LARGE_BASE_BLOCK.get()
-                    )
-                    .build(null)
-    );
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BaseBlockEntityExtension>> BASE_BE_EXTENSION = BLOCK_ENTITY_REGISTER.register(
-            "base_block_entity_extension",
-            () -> BlockEntityType.Builder.of(
-                    BaseBlockEntityExtension::new,
-                    BlockRegister.EXTENSION_BLOCK.get()
-            ).build(null)
-    );
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MG08BlockEntity>> MG_08_BE = BLOCK_ENTITY_REGISTER.register(
             "mg_08_block_entity",
             () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new MG08BlockEntity(pos, state, MG08Gun.class, BlockRegister.MG_08_BLOCK.get().getActiveOffsets(state)),
+                    (pos, state) -> new MG08BlockEntity(pos, state, MG08.class, BlockRegister.MG_08_BLOCK.get().getActiveOffsets(state)),
                     BlockRegister.MG_08_BLOCK.get()
             ).build(null)
     );

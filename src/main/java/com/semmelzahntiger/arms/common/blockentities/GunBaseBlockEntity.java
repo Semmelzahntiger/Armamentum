@@ -38,6 +38,7 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     public T getManagedEntity() {
         return managedEntity;
     }
+
     public void onBlockRemove() {
         T entity = getManagedEntity();
         if(entity != null) {
@@ -61,7 +62,12 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     @SuppressWarnings("unchecked")
     protected final void restore(Level level, BlockPos blockPos, BlockState blockState) {
         if(pendingLink && level instanceof ServerLevel serverLevel) {
-            setManagedEntity((T) serverLevel.getEntity(pendingLinkUUID));
+            T detectedEntity = (T) serverLevel.getEntity(pendingLinkUUID);
+            if(detectedEntity == null) {
+                level.removeBlock(blockPos, false);
+                return;
+            }
+            setManagedEntity(detectedEntity);
             pendingLink = false;
             pendingLinkUUID = null;
         }
@@ -71,7 +77,8 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
                 try {
                     GunBaseExtensionBlockEntity<T> extEntity = (GunBaseExtensionBlockEntity<T>) level.getBlockEntity(offsetPos);
                     if(extEntity == null) {
-                        continue;
+                        level.removeBlock(offsetPos, false);
+                        return;
                     }
                     extEntity.setLinkedBlockEntity(this);
                 } catch (ClassCastException e) {

@@ -1,19 +1,15 @@
 package com.semmelzahntiger.arms.common.blocks;
 
 import com.semmelzahntiger.arms.common.blockentities.GenericExtensionBlockEntity;
-import com.semmelzahntiger.arms.common.blockentities.GunBaseBlockEntity;
 import com.semmelzahntiger.arms.common.entities.GunEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class GenericGunBaseExtension<G extends Entity & GunEntity> extends GunBaseExtension<G>{
+public class GenericGunBaseExtension<G extends Entity & GunEntity> extends GunBaseBlockExtension<G> {
     protected final Class<G> gunType;
     public GenericGunBaseExtension(Properties properties, Class<G> gunType) {
         super(properties);
