@@ -51,9 +51,15 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
 
     protected void tick(Level level, BlockPos blockPos, BlockState blockState) {
         restore(level, blockPos, blockState);
+        checkIfEntityValid(level, blockPos, blockState);
+    }
+    protected final void checkIfEntityValid(Level level, BlockPos blockPos, BlockState blockState) {
+        if(getManagedEntity() != null && getManagedEntity().isRemoved()) {
+            level.removeBlockEntity(blockPos);
+        }
     }
     @SuppressWarnings("unchecked")
-    protected void restore(Level level, BlockPos blockPos, BlockState blockState) {
+    protected final void restore(Level level, BlockPos blockPos, BlockState blockState) {
         if(pendingLink && level instanceof ServerLevel serverLevel) {
             setManagedEntity((T) serverLevel.getEntity(pendingLinkUUID));
             pendingLink = false;

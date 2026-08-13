@@ -23,7 +23,7 @@ public class MG08Block extends GunBase<MG08Gun, MG08BlockEntity> {
 
     @Override
     public @NotNull BiFunction<BlockPos, BlockState, MG08BlockEntity> getBlockEntityFactory() {
-        return (pos, state) -> new MG08BlockEntity(null, pos, state, MG08Gun.class, getActiveOffsets(state));
+        return (pos, state) -> new MG08BlockEntity(pos, state, MG08Gun.class, getActiveOffsets(state));
     }
 
     @Override

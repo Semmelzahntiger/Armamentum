@@ -1,10 +1,13 @@
 package com.semmelzahntiger.arms.common.register;
 
 import com.semmelzahntiger.arms.Arms;
+import com.semmelzahntiger.arms.common.blocks.GenericGunBaseExtension;
+import com.semmelzahntiger.arms.common.blocks.MG08Block;
 import com.semmelzahntiger.arms.common.blocks.mountablebases.BaseExtension;
 import com.semmelzahntiger.arms.common.blocks.mountablebases.LargeBase;
 import com.semmelzahntiger.arms.common.blocks.mountablebases.MediumBase;
 import com.semmelzahntiger.arms.common.blocks.mountablebases.SmallBase;
+import com.semmelzahntiger.arms.common.entities.MG08Gun;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -24,6 +27,10 @@ public class BlockRegister {
             BlockBehaviour.Properties.of().noOcclusion()
     ));
     public static final DeferredHolder<Block, BaseExtension> EXTENSION_BLOCK = BLOCK_REGISTER.register("base_extension", () -> new BaseExtension(
+            BlockBehaviour.Properties.of().noOcclusion()
+    ));
+
+    public static final DeferredHolder<Block, MG08Block> MG_08_BLOCK = BLOCK_REGISTER.register("mg_08_block", () -> new MG08Block(
             BlockBehaviour.Properties.of().noOcclusion()
     ));
 }

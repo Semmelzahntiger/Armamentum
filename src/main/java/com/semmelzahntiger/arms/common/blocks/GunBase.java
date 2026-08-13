@@ -33,24 +33,21 @@ import java.util.function.Function;
 public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlockEntity<G>> extends Block implements EntityBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final BooleanProperty WALL_MOUNTED = BooleanProperty.create("wall_mounted");
 
-    public record Orientation(boolean wallMounted, Direction facing) {}
-    protected final Map<Orientation, List<Vec3i>> offsets;
+    protected final Map<Direction, List<Vec3i>> offsets;
 
     public GunBase(Properties properties) {
         super(properties);
         this.offsets = buildOffsets();
         registerDefaultState(stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(WALL_MOUNTED, false));
+                .setValue(FACING, Direction.NORTH));
     }
 
     public abstract @NotNull Class<G> getGunEntityClass();
 
     public abstract @NotNull BiFunction<BlockPos, BlockState, B> getBlockEntityFactory();
 
-    // Return null if multi block is 1x1
+    // Can return null if multi block is 1x1
     public abstract @Nullable GunBaseExtension<G> getExtensionType();
 
     public abstract @NotNull Function<Level, G> getEntityFactory();
@@ -61,49 +58,33 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
     public int getPlatformWidth() {
         return 1;
     }
-    public boolean canPlaceOnWall() {
-        return false;
+    public int getPlatformHeight() {
+        return 1;
     }
-
     protected List<Vec3i> generateOffsets() {
         List<Vec3i> offsets = new ArrayList<>();
         // +X for East
         int width = getPlatformWidth();
         // -Z for North
         int length = getPlatformLength();
+        int height = getPlatformHeight();
 
         for (int x = 0; x < width; x++) {
             for (int z = 0; z < length; z++) {
-                if(x == 0 && z == 0) continue;
-                offsets.add(new Vec3i(x, 0, -z));
+                for (int y = 0; y < height; y++) {
+                    if(x == 0 && y == 0&&z == 0) continue;
+                    offsets.add(new Vec3i(x, y, -z));
+                }
             }
         }
         return offsets;
     }
 
-    protected List<Vec3i> generateWallOffsets() {
-        List<Vec3i> offsets = new ArrayList<>();
-        int width = getPlatformWidth();
-        int length = getPlatformLength();
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < length; y++) {
-                if(x == 0 && y == 0) continue;
-                offsets.add(new Vec3i(x, y, 0));
-            }
-        }
-        return offsets;
-    }
-
-    protected Map<Orientation, List<Vec3i>> buildOffsets() {
-        Map<Orientation, List<Vec3i>> map = new HashMap<>();
-        List<Vec3i> floorBase = generateOffsets();
-        List<Vec3i> wallBase = canPlaceOnWall() ? generateWallOffsets() : null;
+    protected Map<Direction, List<Vec3i>> buildOffsets() {
+        Map<Direction, List<Vec3i>> map = new HashMap<>();
+        List<Vec3i> northOffsets = generateOffsets();
         for (Direction facing : Direction.Plane.HORIZONTAL) {
-            map.put(new Orientation(false, facing), rotateAll(floorBase, facing));
-            if (wallBase != null) {
-                map.put(new Orientation(true, facing), rotateAll(wallBase, facing));
-            }
+            map.put(facing, rotateAll(northOffsets, facing));
         }
         return map;
     }
@@ -118,9 +99,7 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
 
     /** The structure cell offsets for the orientation this state was placed with. */
     public List<Vec3i> getActiveOffsets(BlockState state) {
-        return offsets.getOrDefault(
-                new Orientation(state.getValue(WALL_MOUNTED), state.getValue(FACING)),
-                List.of());
+        return offsets.get(state.getValue(FACING));
     }
 
     protected boolean areOffsetsFree(Level level, BlockPos pos, BlockState state) {
@@ -134,20 +113,13 @@ public abstract class GunBase<G extends Entity & GunEntity, B extends GunBaseBlo
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, WALL_MOUNTED);
+        builder.add(FACING);
     }
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction clicked = context.getClickedFace();
-        boolean wall = clicked.getAxis().isHorizontal();
-        if (wall && !canPlaceOnWall()) {
-            return null;
-        }
         BlockState state = defaultBlockState()
-                .setValue(WALL_MOUNTED, wall)
-                .setValue(FACING, wall ? clicked : context.getHorizontalDirection());
-
+                .setValue(FACING, context.getHorizontalDirection());
         return areOffsetsFree(context.getLevel(), context.getClickedPos(), state) ? state : null;
     }
 
