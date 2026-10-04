@@ -1,10 +1,20 @@
 package com.semmelzahntiger.arms.core.obb;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
+import util.LogUtil;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
@@ -12,7 +22,7 @@ import java.util.Deque;
 
 /**
  * Mutable Component representing the Transformed version of {@link Skeleton Skeletons}
- * Todo: Add Disabling of Parts
+ * Todo: Add Disabling of Parts. Irgendwann bruder...
  */
 public class Pose {
     private static final float EPSILON = 1e-8f;
@@ -23,6 +33,7 @@ public class Pose {
     Vec3[] worldPositionCache;
 
     private boolean cacheDirty = true;
+    private boolean syncDirty = false;
 
     public Pose(Skeleton skeleton) {
         this.skeleton = skeleton;
@@ -40,6 +51,131 @@ public class Pose {
     }
 
     /**
+     * @return Snapshot for the Pose for syncing purposes
+     */
+    public Snapshot snapshot() {
+        Matrix3f[] rotationCopy = new Matrix3f[rotations.length];
+        for (int i = 0; i < rotations.length; i++) {
+            rotationCopy[i] = new Matrix3f(rotations[i]);
+        }
+        return new Snapshot(rotationCopy, translations.clone());
+    }
+
+    /**
+     * Syncs the Pose with data from the server
+     * @param snapshot Snapshot sent from Server
+     */
+    public void apply(Snapshot snapshot) {
+        if (snapshot.rotations().length != rotations.length || snapshot.translations().length != translations.length) {
+            LogUtil.getLogger().warn("Received Pose snapshot with mismatching bone count, ignoring...");
+            return;
+        }
+        for (int i = 0; i < rotations.length; i++) {
+            rotations[i] = new Matrix3f(snapshot.rotations()[i]);
+            translations[i] = snapshot.translations()[i];
+        }
+        cacheDirty = true;
+    }
+
+    public boolean consumeSyncDirty() {
+        boolean dirty = syncDirty;
+        syncDirty = false;
+        return dirty;
+    }
+
+    public CompoundTag save() {
+        CompoundTag tag = new CompoundTag();
+        Bone[] bones = skeleton.getBones();
+        for (int i = 0; i < bones.length; i++) {
+            Matrix3f m = rotations[i];
+            ListTag rot = new ListTag();
+            for (float f : new float[] {m.m00, m.m01, m.m02, m.m10, m.m11, m.m12, m.m20, m.m21, m.m22}) {
+                rot.add(FloatTag.valueOf(f));
+            }
+            Vec3 t = translations[i];
+            ListTag trans = new ListTag();
+            trans.add(DoubleTag.valueOf(t.x));
+            trans.add(DoubleTag.valueOf(t.y));
+            trans.add(DoubleTag.valueOf(t.z));
+
+            CompoundTag boneTag = new CompoundTag();
+            boneTag.put("rot", rot);
+            boneTag.put("trans", trans);
+            tag.put(bones[i].id().id(), boneTag);
+        }
+        return tag;
+    }
+
+    public void load(CompoundTag tag) {
+        Bone[] bones = skeleton.getBones();
+        for (int i = 0; i < bones.length; i++) {
+            String key = bones[i].id().id();
+            if (!tag.contains(key, Tag.TAG_COMPOUND)) {
+                continue;
+            }
+            CompoundTag boneTag = tag.getCompound(key);
+            ListTag rot = boneTag.getList("rot", Tag.TAG_FLOAT);
+            if (rot.size() == 9) {
+                rotations[i] = new Matrix3f(
+                        rot.getFloat(0), rot.getFloat(1), rot.getFloat(2),
+                        rot.getFloat(3), rot.getFloat(4), rot.getFloat(5),
+                        rot.getFloat(6), rot.getFloat(7), rot.getFloat(8));
+            }
+            ListTag trans = boneTag.getList("trans", Tag.TAG_DOUBLE);
+            if (trans.size() == 3) {
+                translations[i] = new Vec3(trans.getDouble(0), trans.getDouble(1), trans.getDouble(2));
+            }
+        }
+        cacheDirty = true;
+        syncDirty = true;
+    }
+
+    public record Snapshot(Matrix3f[] rotations, Vec3[] translations) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, Snapshot> STREAM_CODEC = StreamCodec.of(Snapshot::write, Snapshot::read);
+
+        private static void write(RegistryFriendlyByteBuf buf, Snapshot snapshot) {
+            buf.writeVarInt(snapshot.rotations.length);
+            for (int i = 0; i < snapshot.rotations.length; i++) {
+                writeMatrix(buf, snapshot.rotations[i]);
+                Vec3 t = snapshot.translations[i];
+                buf.writeDouble(t.x);
+                buf.writeDouble(t.y);
+                buf.writeDouble(t.z);
+            }
+        }
+
+        private static Snapshot read(RegistryFriendlyByteBuf buf) {
+            int count = buf.readVarInt();
+            Matrix3f[] rotations = new Matrix3f[count];
+            Vec3[] translations = new Vec3[count];
+            for (int i = 0; i < count; i++) {
+                rotations[i] = readMatrix(buf);
+                translations[i] = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
+            }
+            return new Snapshot(rotations, translations);
+        }
+
+        private static void writeMatrix(RegistryFriendlyByteBuf buf, Matrix3f m) {
+            buf.writeFloat(m.m00);
+            buf.writeFloat(m.m01);
+            buf.writeFloat(m.m02);
+            buf.writeFloat(m.m10);
+            buf.writeFloat(m.m11);
+            buf.writeFloat(m.m12);
+            buf.writeFloat(m.m20);
+            buf.writeFloat(m.m21);
+            buf.writeFloat(m.m22);
+        }
+
+        private static Matrix3f readMatrix(RegistryFriendlyByteBuf buf) {
+            return new Matrix3f(
+                    buf.readFloat(), buf.readFloat(), buf.readFloat(),
+                    buf.readFloat(), buf.readFloat(), buf.readFloat(),
+                    buf.readFloat(), buf.readFloat(), buf.readFloat());
+        }
+    }
+
+    /**
      * Sets the Rotation of a Bone. If rotation is equal to current, return early.
      * @param boneId id of the Bone
      * @param rotation desired Rotation
@@ -51,6 +187,7 @@ public class Pose {
         }
         rotations[idx] = rotation;
         cacheDirty = true;
+        syncDirty = true;
     }
 
     /**
@@ -65,6 +202,7 @@ public class Pose {
         }
         translations[idx] = translation;
         cacheDirty = true;
+        syncDirty = true;
     }
 
     /**
@@ -79,6 +217,7 @@ public class Pose {
         int idx = skeleton.getIndexOfBoneId(boneId);
         rotations[idx] = rotations[idx].mul(rotation);
         cacheDirty = true;
+        syncDirty = true;
     }
     public void addTranslation(BoneId boneIndex, Vec3 translation) {
         if(translation.equals(Vec3.ZERO)) {
@@ -87,6 +226,7 @@ public class Pose {
         int idx = skeleton.getIndexOfBoneId(boneIndex);
         translations[idx] = translations[idx].add(translation);
         cacheDirty = true;
+        syncDirty = true;
     }
 
     /**

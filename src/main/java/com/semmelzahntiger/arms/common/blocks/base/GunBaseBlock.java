@@ -1,7 +1,7 @@
-package com.semmelzahntiger.arms.common.blocks;
+package com.semmelzahntiger.arms.common.blocks.base;
 
-import com.semmelzahntiger.arms.common.blockentities.GunBaseBlockEntity;
-import com.semmelzahntiger.arms.common.blockentities.GunBaseExtensionBlockEntity;
+import com.semmelzahntiger.arms.common.blockentities.base.GunBaseBlockEntity;
+import com.semmelzahntiger.arms.common.blockentities.base.GunBaseExtensionBlockEntity;
 import com.semmelzahntiger.arms.common.entities.GunEntity;
 import com.semmelzahntiger.arms.helper.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -20,17 +20,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public abstract class GunBaseBlock<G extends Entity & GunEntity> extends Block implements EntityBlock {
 
@@ -46,11 +43,7 @@ public abstract class GunBaseBlock<G extends Entity & GunEntity> extends Block i
     }
 
 
-    public abstract @NotNull BiFunction<BlockPos, BlockState, BlockEntity> getBlockEntityFactory();
-    /**
-     * @return Instance of the defined Entity
-     */
-    public abstract @NotNull Function<Level, G> getEntityFactory();
+    public abstract @NotNull TriFunction<BlockPos, BlockState,List<Vec3i>, BlockEntity> getBlockEntityFactory();
 
     public int getPlatformLength() {
         return 1;
@@ -95,6 +88,7 @@ public abstract class GunBaseBlock<G extends Entity & GunEntity> extends Block i
         }
         return map;
     }
+
     protected abstract BlockState getBlockStateForOffset(Direction direction, Vec3i offset);
 
     private static List<Vec3i> rotateAll(List<Vec3i> base, Direction facing) {
@@ -140,8 +134,8 @@ public abstract class GunBaseBlock<G extends Entity & GunEntity> extends Block i
     }
 
     @Override
-    public final @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return getBlockEntityFactory().apply(blockPos, blockState);
+    public final @Nullable BlockEntity newBlockEntity(@NotNull BlockPos blockPos, @NotNull BlockState blockState) {
+        return getBlockEntityFactory().apply(blockPos, blockState, getOffsetsFromDirection(blockState.getValue(FACING)));
     }
     @SuppressWarnings("unchecked")
     public GunBaseBlockEntity<G> getGunBaseBlockEntity(Level level, BlockPos blockPos) {
@@ -152,56 +146,35 @@ public abstract class GunBaseBlock<G extends Entity & GunEntity> extends Block i
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        GunBaseBlockEntity<G> gunBase = getGunBaseBlockEntity(level, pos);
-        if(gunBase == null) {
-            LogUtil.getLogger().warn("No BlockEntity detected.");
-            return;
-        }
-        // Entity initialization
-        G entity = getEntityFactory().apply(level);
-        Vec3 currentPos = pos.getCenter();
-        Vec3 offsetPos = currentPos.add(entity.getOffsetFromControllerCenter());
-        level.addFreshEntity(entity);
-        entity.setPos(offsetPos);
-        gunBase.setManagedEntity(entity);
-        // Place Multiblock components
-        placeStructure(level, pos, state, gunBase);
+        placeStructure(level, pos, state);
     }
-    @SuppressWarnings("unchecked")
-    protected void placeStructure(Level level, BlockPos pos, BlockState state, GunBaseBlockEntity<G> blockEntity) {
+    protected void placeStructure(Level level, BlockPos pos, BlockState state) {
         for (Vec3i offset : getActiveOffsets(state)) {
             BlockPos offsetPos = pos.offset(offset);
             BlockState extensionState = getBlockStateForOffset(state.getValue(FACING), offset);
             level.setBlockAndUpdate(offsetPos, extensionState);
-            GunBaseExtensionBlockEntity<G> extensionBlockEntity = (GunBaseExtensionBlockEntity<G>) level.getBlockEntity(offsetPos);
-            if(extensionBlockEntity == null) {
-                continue;
-            }
-            extensionBlockEntity.setLinkedBlockEntity(blockEntity);
         }
     }
 
-    /**
-     * Additionally removes the GunEntity upon removal
-     */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         GunBaseBlockEntity<G> gunBaseBlockEntity = getGunBaseBlockEntity(level, pos);
-        if(gunBaseBlockEntity != null) {
-            gunBaseBlockEntity.onBlockRemove();
-        }
-
         for (Vec3i activeOffset : getActiveOffsets(state)) {
             BlockPos extensionPos = pos.offset(activeOffset);
-            BlockState toBePlaced = getBlockStateForOffset(state.getValue(FACING), activeOffset);
-            if(!(level.getBlockState(extensionPos).getBlock() instanceof GunBaseBlockExtension<?>)) {
-                continue;
+            if(
+                    level.getBlockState(extensionPos).getBlock() instanceof GunBaseBlockExtension<?> extension &&
+                    extension.getBlockEntity(level, extensionPos) instanceof GunBaseExtensionBlockEntity<?> be &&
+                    pos.equals(be.getLinkedBlockPos())
+            ) {
+                level.removeBlock(extensionPos, false);
             }
-            level.removeBlock(extensionPos, false);
+        }
+        if(gunBaseBlockEntity != null) {
+            gunBaseBlockEntity.onBreak();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
-
+    @SuppressWarnings("unchecked")
     private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
             BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
     ) {
@@ -212,7 +185,7 @@ public abstract class GunBaseBlock<G extends Entity & GunEntity> extends Block i
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
         return createTickerHelper(blockEntityType, getCheckedBlockEntityType(), GunBaseBlockEntity::tick);
     }
-    public abstract @NotNull BlockEntityType<GunBaseBlockEntity<?>> getCheckedBlockEntityType();
+    public abstract @NotNull BlockEntityType<? extends GunBaseBlockEntity<?>> getCheckedBlockEntityType();
 
     @Override
     protected @NotNull RenderShape getRenderShape(BlockState state) {

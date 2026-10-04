@@ -1,7 +1,9 @@
-package com.semmelzahntiger.arms.common.blockentities;
+package com.semmelzahntiger.arms.common.blockentities.base;
 
 import com.semmelzahntiger.arms.common.entities.GunEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,11 +38,37 @@ public abstract class GunBaseExtensionBlockEntity<T extends Entity & GunEntity> 
     public void setLinkedBlockPos(BlockPos linkedBlockPos) {
         this.linkedBlockPos = linkedBlockPos;
     }
-
     public static void tick(Level level, BlockPos pos, BlockState state, GunBaseExtensionBlockEntity<?> blockEntity) {
         blockEntity.tick(level, pos, state);
     }
     public void tick(Level level, BlockPos pos, BlockState state) {
 
+    }
+    public void onBreak() {
+        Level level = getLevel();
+        if(level != null) {
+            getLevel().destroyBlock(linkedBlockPos, true);
+        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        if(linkedBlockPos != null) {
+            tag.putIntArray("link_pos", new int[] {linkedBlockPos.getX(), linkedBlockPos.getY(), linkedBlockPos.getZ()});
+        }
+    }
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        if(tag.contains("link_pos")) {
+            int[] pos = tag.getIntArray("link_pos");
+            linkedBlockPos = new BlockPos(pos[0], pos[1], pos[2]);
+            BlockEntity be = getLevel().getBlockEntity(linkedBlockPos);
+            if(be instanceof GunBaseBlockEntity<?> gunBase) {
+                linkedBlockEntity = (GunBaseBlockEntity<T>) gunBase;
+            }
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.semmelzahntiger.arms.common.items;
 
-import com.semmelzahntiger.arms.common.blocks.GunBaseBlock;
+import com.semmelzahntiger.arms.common.blocks.base.GunBaseBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -11,8 +11,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import java.util.List;
 
 public class GunBlockItem extends BlockItem {
-    protected final GunBaseBlock<?,?> gunBaseBlock;
-    public GunBlockItem(GunBaseBlock<?,?> block, Properties properties) {
+    protected final GunBaseBlock<?> gunBaseBlock;
+    public GunBlockItem(GunBaseBlock<?> block, Properties properties) {
         super(block, properties);
         this.gunBaseBlock = block;
     }

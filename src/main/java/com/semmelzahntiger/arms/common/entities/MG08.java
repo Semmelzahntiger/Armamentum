@@ -1,12 +1,16 @@
 package com.semmelzahntiger.arms.common.entities;
 
+import com.semmelzahntiger.arms.common.register.EntityRegister;
 import com.semmelzahntiger.arms.common.skeletons.Skeletons;
 import com.semmelzahntiger.arms.core.cts.CTSEntity;
 import com.semmelzahntiger.arms.core.cts.data.MG08Data;
+import com.semmelzahntiger.arms.core.obb.BoneId;
 import com.semmelzahntiger.arms.core.obb.OBBEntity;
 import com.semmelzahntiger.arms.core.obb.Pose;
 import com.semmelzahntiger.arms.core.obb.Skeleton;
+import com.semmelzahntiger.arms.helper.PoseUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -22,11 +26,22 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.function.Supplier;
 
 public class MG08 extends Entity implements GeoAnimatable, OBBEntity, GunEntity, CTSEntity<MG08, MG08Data> {
-    protected final AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
-    protected Pose pose = new Pose(getSkeleton());
+    private static final EntityDataAccessor<Pose.Snapshot> SYNCED_POSE =
+            SynchedEntityData.defineId(MG08.class, PoseUtil.POSE_SERIALIZER);
 
-    public MG08(EntityType<?> entityType, Level level) {
-        super(entityType, level);
+    protected final AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
+    protected final Pose pose = new Pose(getSkeleton());
+
+    public MG08(EntityType<?> type, Level level) {
+        super(type,level);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (SYNCED_POSE.equals(key) && level().isClientSide && pose != null) {
+            pose.apply(entityData.get(SYNCED_POSE));
+        }
     }
 
     @Override
@@ -46,17 +61,19 @@ public class MG08 extends Entity implements GeoAnimatable, OBBEntity, GunEntity,
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-
+        builder.define(SYNCED_POSE, new Pose(getSkeleton()).snapshot());
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
-
+        if (compoundTag.contains("pose")) {
+            pose.load(compoundTag.getCompound("pose"));
+        }
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-
+        compoundTag.put("pose", pose.save());
     }
 
     @Override
@@ -88,4 +105,13 @@ public class MG08 extends Entity implements GeoAnimatable, OBBEntity, GunEntity,
     public @NotNull AABB getBoundingBox() {
         return pose.getEncapsulatingAABB(position());
     }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (!level().isClientSide && pose.consumeSyncDirty()) {
+            entityData.set(SYNCED_POSE, pose.snapshot());
+        }
+    }
+    
 }

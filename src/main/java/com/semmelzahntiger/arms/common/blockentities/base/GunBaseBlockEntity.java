@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.common.blockentities;
+package com.semmelzahntiger.arms.common.blockentities.base;
 
 import com.semmelzahntiger.arms.common.entities.GunEntity;
 import net.minecraft.core.BlockPos;
@@ -11,12 +11,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import util.LogUtil;
 
 import java.util.List;
 import java.util.UUID;
 
 public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends BlockEntity {
+    protected boolean initialized = false;
     protected final List<Vec3i> offsets;
     protected boolean pendingLink = false;
     protected UUID pendingLinkUUID  = null;
@@ -39,7 +41,7 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
         return managedEntity;
     }
 
-    public void onBlockRemove() {
+    public void onBreak() {
         T entity = getManagedEntity();
         if(entity != null) {
             entity.discard();
@@ -50,23 +52,43 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
         blockEntity.tick(level, pos, state);
     }
 
+    protected abstract T createGunEntity();
+
+    protected Vec3 getEntityPlacementOffset() {
+        return Vec3.ZERO;
+    }
+
     protected void tick(Level level, BlockPos blockPos, BlockState blockState) {
+        initialize(level, blockPos, blockState);
         restore(level, blockPos, blockState);
         checkIfEntityValid(level, blockPos, blockState);
     }
+    protected void initialize(Level level, BlockPos blockPos, BlockState blockState) {
+        if(!initialized && !level.isClientSide) {
+            T gunEntity = createGunEntity();
+            gunEntity.setPos(blockPos.getBottomCenter().add(getEntityPlacementOffset()));
+            level.addFreshEntity(gunEntity);
+            setManagedEntity(gunEntity);
+            for (Vec3i offset : offsets) {
+                BlockPos partPos = getBlockPos().offset(offset);
+                BlockEntity blockEntity = getLevel().getBlockEntity(partPos);
+                GunBaseExtensionBlockEntity<T> extBe = (GunBaseExtensionBlockEntity<T>) blockEntity;
+                extBe.setLinkedBlockEntity(this);
+            }
+            initializeHook(level, blockPos, blockState);
+            initialized = true;
+        }
+    }
+    protected abstract void initializeHook(Level level, BlockPos blockPos, BlockState blockState);
     protected final void checkIfEntityValid(Level level, BlockPos blockPos, BlockState blockState) {
         if(getManagedEntity() != null && getManagedEntity().isRemoved()) {
             level.removeBlockEntity(blockPos);
         }
     }
     @SuppressWarnings("unchecked")
-    protected final void restore(Level level, BlockPos blockPos, BlockState blockState) {
+    protected void restore(Level level, BlockPos blockPos, BlockState blockState) {
         if(pendingLink && level instanceof ServerLevel serverLevel) {
             T detectedEntity = (T) serverLevel.getEntity(pendingLinkUUID);
-            if(detectedEntity == null) {
-                level.removeBlock(blockPos, false);
-                return;
-            }
             setManagedEntity(detectedEntity);
             pendingLink = false;
             pendingLinkUUID = null;
@@ -76,10 +98,6 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
                 BlockPos offsetPos = blockPos.offset(offset);
                 try {
                     GunBaseExtensionBlockEntity<T> extEntity = (GunBaseExtensionBlockEntity<T>) level.getBlockEntity(offsetPos);
-                    if(extEntity == null) {
-                        level.removeBlock(offsetPos, false);
-                        return;
-                    }
                     extEntity.setLinkedBlockEntity(this);
                 } catch (ClassCastException e) {
                     LogUtil.getLogger().error("BlockEntity at offset was unexpectedly of another type.", e);
@@ -93,6 +111,7 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         if(managedEntity != null) {
+            tag.putBoolean("initialized", true);
             tag.putBoolean("link", true);
             tag.putUUID("linked_entity",getManagedEntity().getUUID());
         }
@@ -103,6 +122,7 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if(tag.contains("link")) {
+            initialized = tag.getBoolean("initialized");
             pendingLink = tag.getBoolean("link");
             pendingLinkUUID = tag.getUUID("linked_entity");
         }
