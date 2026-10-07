@@ -26,7 +26,7 @@ public class MG08Block extends GunBaseBlock<MG08> {
         return (pos, state, offsets) -> new MG08BlockEntity(pos,state, MG08.class, offsets);
     }
     @Override
-    protected BlockState getBlockStateForOffset(Direction direction, Vec3i offset) {
+    protected BlockState getBlockStateForOffset(Vec3i offset) {
         return null;
     }
 

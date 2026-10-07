@@ -8,7 +8,6 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
 public class ClientEventListeners {
-
     @SubscribeEvent
     public static void onEntityJoinLevelEvent(EntityJoinLevelEvent event) {
         if(event.getLevel().isClientSide() && event.getEntity() instanceof CTSEntity<?, ?> entity) {

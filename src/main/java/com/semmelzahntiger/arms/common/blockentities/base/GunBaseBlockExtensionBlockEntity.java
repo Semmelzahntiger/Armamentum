@@ -12,11 +12,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public abstract class GunBaseExtensionBlockEntity<T extends Entity & GunEntity> extends BlockEntity {
+public abstract class GunBaseBlockExtensionBlockEntity<T extends Entity & GunEntity> extends BlockEntity {
     protected BlockPos linkedBlockPos = null;
     protected GunBaseBlockEntity<T> linkedBlockEntity = null;
 
-    public GunBaseExtensionBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public GunBaseBlockExtensionBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
     public @Nullable GunBaseBlockEntity<T> getLinkedBlockEntity() {
@@ -38,7 +38,7 @@ public abstract class GunBaseExtensionBlockEntity<T extends Entity & GunEntity> 
     public void setLinkedBlockPos(BlockPos linkedBlockPos) {
         this.linkedBlockPos = linkedBlockPos;
     }
-    public static void tick(Level level, BlockPos pos, BlockState state, GunBaseExtensionBlockEntity<?> blockEntity) {
+    public static void tick(Level level, BlockPos pos, BlockState state, GunBaseBlockExtensionBlockEntity<?> blockEntity) {
         blockEntity.tick(level, pos, state);
     }
     public void tick(Level level, BlockPos pos, BlockState state) {
@@ -46,8 +46,8 @@ public abstract class GunBaseExtensionBlockEntity<T extends Entity & GunEntity> 
     }
     public void onBreak() {
         Level level = getLevel();
-        if(level != null) {
-            getLevel().destroyBlock(linkedBlockPos, true);
+        if(level != null && linkedBlockPos != null) {
+            level.destroyBlock(linkedBlockPos, true);
         }
     }
 
@@ -58,17 +58,12 @@ public abstract class GunBaseExtensionBlockEntity<T extends Entity & GunEntity> 
             tag.putIntArray("link_pos", new int[] {linkedBlockPos.getX(), linkedBlockPos.getY(), linkedBlockPos.getZ()});
         }
     }
-    @SuppressWarnings("unchecked")
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if(tag.contains("link_pos")) {
             int[] pos = tag.getIntArray("link_pos");
             linkedBlockPos = new BlockPos(pos[0], pos[1], pos[2]);
-            BlockEntity be = getLevel().getBlockEntity(linkedBlockPos);
-            if(be instanceof GunBaseBlockEntity<?> gunBase) {
-                linkedBlockEntity = (GunBaseBlockEntity<T>) gunBase;
-            }
         }
     }
 }

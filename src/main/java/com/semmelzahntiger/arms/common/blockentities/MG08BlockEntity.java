@@ -35,7 +35,5 @@ public class MG08BlockEntity extends GunBaseBlockEntity<MG08> {
                         0,
                         MiscUtil.getDegreesFromRotation(blockState.getValue(FACING)),
                         0));
-        LogUtil.getLogger().info(getManagedEntity().getOBBPose().getWorldRotationOf(new BoneId("mgmain")).toString());
-        LogUtil.getLogger().info("Initialize Hook triggered");
     }
 }

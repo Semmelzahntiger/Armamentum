@@ -1,16 +1,18 @@
 package com.semmelzahntiger.arms.common.blocks.base;
 
-import com.semmelzahntiger.arms.common.blockentities.base.GunBaseExtensionBlockEntity;
+import com.semmelzahntiger.arms.common.blockentities.base.GunBaseBlockExtensionBlockEntity;
 import com.semmelzahntiger.arms.common.entities.GunEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import org.jetbrains.annotations.NotNull;
@@ -30,12 +32,17 @@ public abstract class GunBaseBlockExtension<G extends Entity & GunEntity> extend
         return getBlockEntityFactory().apply(blockPos, blockState);
     }
 
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
     public abstract @NotNull BiFunction<BlockPos,BlockState,BlockEntity> getBlockEntityFactory();
 
     @Override
     protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+        GunBaseBlockExtensionBlockEntity<G> be = getBlockEntity(level, pos);
         super.onRemove(state, level, pos, newState, movedByPiston);
-        GunBaseExtensionBlockEntity<G> be = getBlockEntity(level, pos);
         if(be != null) {
             be.onBreak();
         }
@@ -48,12 +55,16 @@ public abstract class GunBaseBlockExtension<G extends Entity & GunEntity> extend
     }
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, getCheckedBlockEntityType(), GunBaseExtensionBlockEntity::tick);
+        return createTickerHelper(blockEntityType, getCheckedBlockEntityType(), GunBaseBlockExtensionBlockEntity::tick);
     }
-    public abstract BlockEntityType<GunBaseExtensionBlockEntity<?>> getCheckedBlockEntityType();
+    public abstract BlockEntityType<? extends GunBaseBlockExtensionBlockEntity<?>> getCheckedBlockEntityType();
     @SuppressWarnings("unchecked")
-    public GunBaseExtensionBlockEntity<G> getBlockEntity(Level level, BlockPos pos) {
-        return (GunBaseExtensionBlockEntity<G>) level.getBlockEntity(pos);
+    public GunBaseBlockExtensionBlockEntity<G> getBlockEntity(Level level, BlockPos pos) {
+        return (GunBaseBlockExtensionBlockEntity<G>) level.getBlockEntity(pos);
+    }
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
     }
 
 }

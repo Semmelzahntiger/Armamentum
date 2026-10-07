@@ -8,6 +8,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 
 public class Skeletons {
+    public static final Skeleton DEFAULT_BOX_SKELETON;
     public static final Skeleton TEST_SKELETON;
     public static final Skeleton MG08_SKELETON;
     public static final Skeleton MG08DUAL_SKELETON;
@@ -16,6 +17,10 @@ public class Skeletons {
         BoneId child = new BoneId("Child");
         BoneId childRotated = new BoneId("ChildRotated");
         BoneId childRotatedChild = new BoneId("ChildRotatedChild");
+        DEFAULT_BOX_SKELETON = new Skeleton.Builder()
+                .bone(main,null, Vec3.ZERO, new Matrix3f())
+                .box("main", main, new AABB(-0.5,-0.5,-0.5,0.5,0.5,0.5))
+                .build();
         TEST_SKELETON = new Skeleton.Builder()
                 .bone(main, null, Vec3.ZERO, new Matrix3f())
                 .bone(child, main, new Vec3(0,2,0), new Matrix3f())

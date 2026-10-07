@@ -13,4 +13,8 @@ public class ItemRegister {
             "mg_08_item",
             () -> new GunBlockItem(BlockRegister.MG_08_BLOCK.get(), new Item.Properties())
     );
+    public static final DeferredHolder<Item, GunBlockItem> MORTAR_ITEM = ITEM_REGISTER.register(
+            "mortar_item",
+            () -> new GunBlockItem(BlockRegister.MORTAR_BLOCK.get(), new Item.Properties())
+    );
 }

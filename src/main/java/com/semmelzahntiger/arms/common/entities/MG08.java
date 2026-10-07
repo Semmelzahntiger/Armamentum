@@ -39,7 +39,7 @@ public class MG08 extends Entity implements GeoAnimatable, OBBEntity, GunEntity,
     @Override
     public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
-        if (SYNCED_POSE.equals(key) && level().isClientSide && pose != null) {
+        if (SYNCED_POSE.equals(key) && level().isClientSide) {
             pose.apply(entityData.get(SYNCED_POSE));
         }
     }

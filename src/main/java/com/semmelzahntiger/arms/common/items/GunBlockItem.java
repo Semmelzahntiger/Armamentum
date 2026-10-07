@@ -1,9 +1,9 @@
 package com.semmelzahntiger.arms.common.items;
 
 import com.semmelzahntiger.arms.common.blocks.base.GunBaseBlock;
+import com.semmelzahntiger.arms.common.blocks.base.OffsetBlockStatePair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,10 +20,10 @@ public class GunBlockItem extends BlockItem {
     @Override
     public InteractionResult place(BlockPlaceContext context) {
         Direction dir = context.getHorizontalDirection();
-        List<Vec3i> offsets = gunBaseBlock.getOffsetsFromDirection(dir);
+        List<OffsetBlockStatePair> offsets = gunBaseBlock.getOffsetsFromDirection(dir);
         BlockPos pos = context.getClickedPos();
-        for (Vec3i offset : offsets) {
-            BlockPos offsetPos = pos.offset(offset);
+        for (OffsetBlockStatePair offset : offsets) {
+            BlockPos offsetPos = pos.offset(offset.offset());
             if(!context.getLevel().getBlockState(offsetPos).isAir()) {
                 return InteractionResult.FAIL;
             }

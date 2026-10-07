@@ -18,10 +18,12 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends BlockEntity {
+    protected static final int LINK_TIMEOUT_TICKS = 10;
     protected boolean initialized = false;
     protected final List<Vec3i> offsets;
     protected boolean pendingLink = false;
     protected UUID pendingLinkUUID  = null;
+    protected int pendingLinkTicks = 0;
     protected boolean pendingMultiBlockLink = false;
     protected final Class<T> entityClass;
     protected T managedEntity;
@@ -72,7 +74,7 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
             for (Vec3i offset : offsets) {
                 BlockPos partPos = getBlockPos().offset(offset);
                 BlockEntity blockEntity = getLevel().getBlockEntity(partPos);
-                GunBaseExtensionBlockEntity<T> extBe = (GunBaseExtensionBlockEntity<T>) blockEntity;
+                GunBaseBlockExtensionBlockEntity<T> extBe = (GunBaseBlockExtensionBlockEntity<T>) blockEntity;
                 extBe.setLinkedBlockEntity(this);
             }
             initializeHook(level, blockPos, blockState);
@@ -81,23 +83,46 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     }
     protected abstract void initializeHook(Level level, BlockPos blockPos, BlockState blockState);
     protected final void checkIfEntityValid(Level level, BlockPos blockPos, BlockState blockState) {
-        if(getManagedEntity() != null && getManagedEntity().isRemoved()) {
+        T entity = getManagedEntity();
+        if(entity == null || !entity.isRemoved()) {
+            return;
+        }
+        Entity.RemovalReason reason = entity.getRemovalReason();
+        if(reason != null && reason.shouldDestroy()) {
             level.removeBlockEntity(blockPos);
+        }
+        else {
+            pendingLink = true;
+            pendingLinkUUID = entity.getUUID();
+            pendingLinkTicks = 0;
+            setManagedEntity(null);
         }
     }
     @SuppressWarnings("unchecked")
     protected void restore(Level level, BlockPos blockPos, BlockState blockState) {
         if(pendingLink && level instanceof ServerLevel serverLevel) {
-            T detectedEntity = (T) serverLevel.getEntity(pendingLinkUUID);
-            setManagedEntity(detectedEntity);
-            pendingLink = false;
-            pendingLinkUUID = null;
+            Entity detectedEntity = serverLevel.getEntity(pendingLinkUUID);
+            if(entityClass.isInstance(detectedEntity)) {
+                setManagedEntity(entityClass.cast(detectedEntity));
+                pendingLink = false;
+                pendingLinkUUID = null;
+                pendingLinkTicks = 0;
+            }
+            else if(++pendingLinkTicks >= LINK_TIMEOUT_TICKS) {
+                LogUtil.getLogger().warn("Linked entity {} of gun at {} did not load within {} ticks, destroying structure.",
+                        pendingLinkUUID, blockPos, LINK_TIMEOUT_TICKS);
+                pendingLink = false;
+                pendingLinkUUID = null;
+                pendingLinkTicks = 0;
+                level.destroyBlock(blockPos, true);
+                return;
+            }
         }
         if(pendingMultiBlockLink) {
             for (Vec3i offset : offsets) {
                 BlockPos offsetPos = blockPos.offset(offset);
                 try {
-                    GunBaseExtensionBlockEntity<T> extEntity = (GunBaseExtensionBlockEntity<T>) level.getBlockEntity(offsetPos);
+                    GunBaseBlockExtensionBlockEntity<T> extEntity = (GunBaseBlockExtensionBlockEntity<T>) level.getBlockEntity(offsetPos);
                     extEntity.setLinkedBlockEntity(this);
                 } catch (ClassCastException e) {
                     LogUtil.getLogger().error("BlockEntity at offset was unexpectedly of another type.", e);
@@ -110,10 +135,10 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        if(managedEntity != null) {
-            tag.putBoolean("initialized", true);
-            tag.putBoolean("link", true);
-            tag.putUUID("linked_entity",getManagedEntity().getUUID());
+        tag.putBoolean("initialized", initialized);
+        UUID linkedUUID = managedEntity != null ? managedEntity.getUUID() : pendingLinkUUID;
+        if(linkedUUID != null) {
+            tag.putUUID("linked_entity", linkedUUID);
         }
         tag.putBoolean("has_offsets", offsets != null && !offsets.isEmpty());
     }
@@ -121,9 +146,9 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if(tag.contains("link")) {
-            initialized = tag.getBoolean("initialized");
-            pendingLink = tag.getBoolean("link");
+        initialized = tag.getBoolean("initialized");
+        if(tag.hasUUID("linked_entity")) {
+            pendingLink = true;
             pendingLinkUUID = tag.getUUID("linked_entity");
         }
         if(tag.contains("has_offsets")) {
