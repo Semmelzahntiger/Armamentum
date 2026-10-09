@@ -60,10 +60,14 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
         return Vec3.ZERO;
     }
 
-    protected void tick(Level level, BlockPos blockPos, BlockState blockState) {
+    protected final void tick(Level level, BlockPos blockPos, BlockState blockState) {
         initialize(level, blockPos, blockState);
         restore(level, blockPos, blockState);
         checkIfEntityValid(level, blockPos, blockState);
+        tickHook(level, blockPos, blockState);
+    }
+    protected void tickHook(Level level, BlockPos blockPos, BlockState blockState) {
+
     }
     protected void initialize(Level level, BlockPos blockPos, BlockState blockState) {
         if(!initialized && !level.isClientSide) {
@@ -89,7 +93,7 @@ public abstract class GunBaseBlockEntity<T extends Entity & GunEntity> extends B
         }
         Entity.RemovalReason reason = entity.getRemovalReason();
         if(reason != null && reason.shouldDestroy()) {
-            level.removeBlockEntity(blockPos);
+            level.destroyBlock(blockPos,false);
         }
         else {
             pendingLink = true;

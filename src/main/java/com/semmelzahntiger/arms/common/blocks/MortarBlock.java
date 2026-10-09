@@ -7,7 +7,6 @@ import com.semmelzahntiger.arms.common.entities.Mortar;
 import com.semmelzahntiger.arms.common.register.BlockEntityRegister;
 import com.semmelzahntiger.arms.common.register.BlockRegister;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;

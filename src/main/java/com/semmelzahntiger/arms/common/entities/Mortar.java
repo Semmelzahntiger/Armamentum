@@ -10,8 +10,11 @@ import com.semmelzahntiger.arms.helper.PoseUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -94,5 +97,10 @@ public class Mortar extends Entity implements GunEntity, GeoAnimatable, OBBEntit
     @Override
     public double getTick(Object object) {
         return 0;
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand hand) {
+        return interactPart(position(), player, hand);
     }
 }

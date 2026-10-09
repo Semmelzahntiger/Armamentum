@@ -6,14 +6,18 @@ import com.semmelzahntiger.arms.core.cts.CTSEntity;
 import com.semmelzahntiger.arms.core.cts.data.MG08Data;
 import com.semmelzahntiger.arms.core.obb.BoneId;
 import com.semmelzahntiger.arms.core.obb.OBBEntity;
+import com.semmelzahntiger.arms.core.obb.Part;
 import com.semmelzahntiger.arms.core.obb.Pose;
 import com.semmelzahntiger.arms.core.obb.Skeleton;
 import com.semmelzahntiger.arms.helper.PoseUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -113,5 +117,10 @@ public class MG08 extends Entity implements GeoAnimatable, OBBEntity, GunEntity,
             entityData.set(SYNCED_POSE, pose.snapshot());
         }
     }
-    
+
+    @Override
+    public InteractionResult interact(Player player, InteractionHand hand) {
+       return interactPart(position(), player, hand);
+    }
+
 }
