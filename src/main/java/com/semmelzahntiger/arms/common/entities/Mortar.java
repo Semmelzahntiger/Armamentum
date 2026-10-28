@@ -3,7 +3,10 @@ package com.semmelzahntiger.arms.common.entities;
 import com.semmelzahntiger.arms.common.skeletons.Skeletons;
 import com.semmelzahntiger.arms.core.cts.CTSEntity;
 import com.semmelzahntiger.arms.core.cts.data.MortarData;
+import com.semmelzahntiger.arms.core.input.InputListener;
+import com.semmelzahntiger.arms.core.obb.BoneId;
 import com.semmelzahntiger.arms.core.obb.OBBEntity;
+import com.semmelzahntiger.arms.core.obb.Part;
 import com.semmelzahntiger.arms.core.obb.Pose;
 import com.semmelzahntiger.arms.core.obb.Skeleton;
 import com.semmelzahntiger.arms.helper.PoseUtil;
@@ -23,12 +26,16 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import util.LogUtil;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
-public class Mortar extends Entity implements GunEntity, GeoAnimatable, OBBEntity, CTSEntity<Mortar, MortarData> {
+public class Mortar extends Entity implements GunEntity, GeoAnimatable, OBBEntity, InputListener, CTSEntity<Mortar, MortarData> {
     protected final AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
     protected final Pose pose = new Pose(getSkeleton());
+
+    public static final BoneId MAIN_BONE_ID = new BoneId("main");
 
     private static final EntityDataAccessor<Pose.Snapshot> SYNCED_POSE =
             SynchedEntityData.defineId(Mortar.class, PoseUtil.POSE_SERIALIZER);
@@ -102,5 +109,24 @@ public class Mortar extends Entity implements GunEntity, GeoAnimatable, OBBEntit
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand hand) {
         return interactPart(position(), player, hand);
+    }
+
+    @Override
+    public InteractionResult onPartInteraction(Part part, Player player, InteractionHand hand) {
+        if(part.boneId().equals(MAIN_BONE_ID)) {
+            LogUtil.getLogger().debug("Interacted with main.");
+            return InteractionResult.SUCCESS;
+        }
+        return OBBEntity.super.onPartInteraction(part, player, hand);
+    }
+
+    @Override
+    public UUID getInputListenerUUID() {
+        return getUUID();
+    }
+
+    @Override
+    public void onPlayerUnattach(Player player) {
+
     }
 }

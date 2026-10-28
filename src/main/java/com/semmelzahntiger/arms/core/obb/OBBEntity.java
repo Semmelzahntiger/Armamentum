@@ -13,9 +13,9 @@ public interface OBBEntity {
         if(part != null) {
             return onPartInteraction(part,player, interactionHand);
         }
-        return InteractionResult.FAIL;
+        return InteractionResult.PASS;
     }
     default InteractionResult onPartInteraction(Part part, Player player, InteractionHand hand) {
-        return InteractionResult.FAIL;
+        return InteractionResult.PASS;
     }
 }
