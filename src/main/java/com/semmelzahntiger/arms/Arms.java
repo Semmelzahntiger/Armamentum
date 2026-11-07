@@ -1,6 +1,5 @@
 package com.semmelzahntiger.arms;
 
-import com.semmelzahntiger.arms.client.data.ClientDataManager;
 import com.semmelzahntiger.arms.client.events.ClientEventListeners;
 import com.semmelzahntiger.arms.client.events.RenderRegistrationEvents;
 import com.semmelzahntiger.arms.common.register.BlockEntityRegister;
@@ -36,6 +35,5 @@ public class Arms {
         BlockEntityRegister.BLOCK_ENTITY_REGISTER.register(modEventBus);
         ItemRegister.ITEM_REGISTER.register(modEventBus);
         SoundRegister.SOUND_EVENTS.register(modEventBus);
-        ClientDataManager.init();
     }
 }

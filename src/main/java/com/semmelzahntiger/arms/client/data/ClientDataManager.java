@@ -91,13 +91,13 @@ public class ClientDataManager {
                 // Filter if Class annotated with @ClientData
                 if(annotation.annotationType().equals(clientDataAnnotation)) {
                     Map<String, Object> params = annotation.annotationData();
+                    String className = annotation.clazz().getClassName();
                     // Get Registry Name
                     String registryName = (String) params.get("registryName");
                     // New ClientData per Level or per Session
                     Boolean global = (Boolean) params.get("global");
                     if(registryName != null && !registryName.isEmpty() && global != null) {
                         try {
-                            String className = annotation.clazz().getClassName();
                             Class<?> dataClass = Class.forName(className);
                             Constructor<?> constructor = dataClass.getDeclaredConstructor();
                             constructor.setAccessible(true);
@@ -116,13 +116,13 @@ public class ClientDataManager {
                                 LogUtil.getLogger().info("Registering Global Client Data of: '{}.class' under RegistryName '{}'", dataClass.getSimpleName(), registryName);
                             }
                         } catch (NoSuchMethodException e) {
-                            throw new RuntimeException("No Constructor found for: " + data.getClass().getSimpleName()+".class");
+                            throw new RuntimeException("No no-arg constructor found for: " + className + ".class", e);
                         } catch (ClassNotFoundException e) {
                             throw new RuntimeException(e);
                         }
                     }
                     else {
-                        throw new IllegalStateException(data.getClass().getSimpleName() + ".class has " + (registryName == null ? "missing" : "invalid") +" registryName");
+                        throw new IllegalStateException(className + ".class has " + (registryName == null ? "missing" : "invalid") +" registryName");
                     }
                 }
             }

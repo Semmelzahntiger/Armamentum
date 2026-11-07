@@ -8,6 +8,10 @@
   "entity.arms.mg_08": "MG 08",
   "entity.arms.test_entity": "Test Entity",
 
+  "key.categories.arms": "Armamentum",
+  "key.arms.test_left": "Test Profile: Left",
+  "key.arms.debug_toggle_profile": "Debug: Toggle Test Profile",
+
   "arms.configuration.title": "Arms Configs",
   "arms.configuration.section.arms.common.toml": "Arms Configs",
   "arms.configuration.section.arms.common.toml.title": "Arms Configs",
