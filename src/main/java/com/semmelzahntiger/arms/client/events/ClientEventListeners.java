@@ -7,6 +7,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
+// CTS Logic
 public class ClientEventListeners {
     @SubscribeEvent
     public static void onEntityJoinLevelEvent(EntityJoinLevelEvent event) {

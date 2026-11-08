@@ -7,6 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import util.LogUtil;
 
+//Debug
 public class InputDebugEvents {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
