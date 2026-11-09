@@ -14,10 +14,6 @@ public class TestSimulatableProjectile extends Projectile implements Simulatable
         super(entityType, level);
     }
 
-    @Override
-    public @NotNull SimulatedProjectile getSimulatedProjectile(TestSimulatableProjectile test, CompoundTag tag) {
-        return new SimulatedProjectile(tag, test.position(), test.getDeltaMovement(), test.getGravity());
-    }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
