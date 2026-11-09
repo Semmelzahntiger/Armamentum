@@ -1,4 +1,4 @@
-package com.semmelzahntiger.arms.core.projectile;
+package com.semmelzahntiger.arms.core.simulate;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
