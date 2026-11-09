@@ -9,6 +9,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
+import java.util.UUID;
+
 public class SimulateEvents {
     public static void onEntityTick(EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
@@ -26,7 +28,10 @@ public class SimulateEvents {
         if(!simulatable) {
             return;
         }
+        SimulatedProjectile simulatedProjectile = ((SimulatableProjectile) entity).getSimulatedProjectile(entity, tag);
+        UUID entityUUID = entity.getUUID();
         entity.discard();
-        // Todo: Offload
+        SimulationManager manager = SimulationManager.get(level);
+        manager.addSimulatedProjectile(entityUUID, simulatedProjectile);
     }
 }
