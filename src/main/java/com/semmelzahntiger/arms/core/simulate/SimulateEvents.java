@@ -43,7 +43,7 @@ public class SimulateEvents {
     public static void onChunkUnload(ChunkEvent.Unload event) {
         ChunkAccess chunk = event.getChunk();
         Level level = chunk.getLevel();
-        if(!(level instanceof ServerLevel) && !(chunk instanceof LevelChunk)) {
+        if(!(level instanceof ServerLevel) || !(chunk instanceof LevelChunk)) {
             return;
         }
         TerrainSectionCache levelCache = TerrainSectionCache.getCache((ServerLevel) level);
