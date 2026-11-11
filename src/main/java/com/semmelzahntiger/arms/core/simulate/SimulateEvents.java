@@ -4,12 +4,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import java.util.UUID;
 
 public class SimulateEvents {
+    @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
         if(!(entity instanceof SimulatableProjectile)) {
@@ -31,5 +38,15 @@ public class SimulateEvents {
         entity.discard();
         SimulationManager manager = SimulationManager.get(level);
         manager.addSimulatedProjectile(entityUUID, simulatedProjectile);
+    }
+    @SubscribeEvent
+    public static void onChunkUnload(ChunkEvent.Unload event) {
+        ChunkAccess chunk = event.getChunk();
+        Level level = chunk.getLevel();
+        if(!(level instanceof ServerLevel) && !(chunk instanceof LevelChunk)) {
+            return;
+        }
+        TerrainSectionCache levelCache = TerrainSectionCache.getCache((ServerLevel) level);
+        levelCache.cacheSectionHeight((LevelChunk) chunk);
     }
 }
