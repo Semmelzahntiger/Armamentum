@@ -1,5 +1,6 @@
 package com.semmelzahntiger.arms.core.simulate;
 
+import com.semmelzahntiger.arms.core.simulate.chunks.ChunkMaxHeightCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;

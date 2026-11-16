@@ -1,6 +1,7 @@
 package com.semmelzahntiger.arms.helper;
 
 import com.semmelzahntiger.arms.core.obb.Pose;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -59,5 +60,12 @@ public class MiscUtil {
     }
     public static int getDegreesFromRotation(Direction direction) {
         return degreesList.getOrDefault(direction, 0);
+    }
+
+    public static Vec3i toVec3i(Vec3 vec) {
+        return new Vec3i((int) vec.x, (int) vec.y, (int) vec.z);
+    }
+    public static BlockPos toBlockPos(Vec3 vec) {
+        return new BlockPos((int) vec.x, (int) vec.y, (int) vec.z);
     }
 }

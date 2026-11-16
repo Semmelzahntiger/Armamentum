@@ -1,5 +1,8 @@
-package com.semmelzahntiger.arms.core.simulate;
+package com.semmelzahntiger.arms.core.simulate.chunks;
 
+import com.semmelzahntiger.arms.helper.Constants;
+import com.semmelzahntiger.arms.helper.LRUCappedMap;
+import com.semmelzahntiger.arms.helper.MiscUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -12,14 +15,14 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+// Level 2 Cache of the Simulation System. Checks each individual column in the chunk if the shell is below that
 public class ChunkHighestBlockCache {
-
     public static final int DATA_VER = SharedConstants.getCurrentVersion().getDataVersion().getVersion();
 
-    private final LRUMap<ChunkPos, short[]> cache = new LRUMap<>(512);
+    private final LRUCappedMap<ChunkPos, short[]> cache = new LRUCappedMap<>(512);
     private final ConcurrentLinkedQueue<CacheData> cacheQueue = new ConcurrentLinkedQueue<>();
 
-    public void test(ServerLevel level, ChunkPos pos, Vec3 position) {
+    public void cacheChunkHeights(ServerLevel level, ChunkPos pos) {
         CompletableFuture<Optional<CompoundTag>> tag = level.getChunkSource().chunkMap.read(pos);
         tag.thenAccept(chunkOptional ->
                 chunkOptional.ifPresent(chunkTag -> {
@@ -53,6 +56,27 @@ public class ChunkHighestBlockCache {
         while(!cacheQueue.isEmpty()) {
             CacheData cacheData = cacheQueue.poll();
             cache.put(cacheData.pos, cacheData.heightData);
+        }
+    }
+    private short testForHeight(Vec3 position) {
+       ChunkPos pos = new ChunkPos(MiscUtil.toBlockPos(position));
+       int idx = pos.x + pos.z * 16;
+       short[] heights = cache.get(pos);
+       if(heights == null) {
+           return Constants.UNINITIALIZED;
+       }
+       return heights[idx];
+    }
+    public SimulatedCollisionResult testForCollision(Vec3 position) {
+        short height = testForHeight(position);
+        if(height == Constants.UNINITIALIZED) {
+            return SimulatedCollisionResult.UNKNOWN;
+        }
+        else if(height > (int) position.y) {
+            return SimulatedCollisionResult.MISS;
+        }
+        else {
+            return SimulatedCollisionResult.HIT;
         }
     }
     private record CacheData(ChunkPos pos, short[] heightData) {}
