@@ -11,13 +11,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TerrainSectionCache {
-    private static Map<ServerLevel, TerrainSectionCache> SERVER_CACHE = new HashMap<>();
+public class ChunkMaxHeightCache {
+    private static final Map<ServerLevel, ChunkMaxHeightCache> SERVER_CACHE = new HashMap<>();
     public static final short UNINITIALIZED = Short.MIN_VALUE;
     private final ServerLevel level;
     private final Long2ShortOpenHashMap sectionHeights = new Long2ShortOpenHashMap();
     
-    public TerrainSectionCache(ServerLevel level) {
+    public ChunkMaxHeightCache(ServerLevel level) {
         this.level = level;
         sectionHeights.defaultReturnValue(UNINITIALIZED);
     }
@@ -40,7 +40,8 @@ public class TerrainSectionCache {
         }
         sectionHeights.put(chunk.getPos().toLong(), (short) maxHeight);
     }
-    public static @NotNull TerrainSectionCache getCache(ServerLevel level) {
-        return SERVER_CACHE.computeIfAbsent(level, k -> new TerrainSectionCache(level));
+    public static @NotNull ChunkMaxHeightCache getCache(ServerLevel level) {
+        return SERVER_CACHE.computeIfAbsent(level, k -> new ChunkMaxHeightCache(level));
     }
+    // Todo: Actual intersection logic
 }

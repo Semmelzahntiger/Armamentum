@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -46,7 +45,7 @@ public class SimulateEvents {
         if(!(level instanceof ServerLevel) || !(chunk instanceof LevelChunk)) {
             return;
         }
-        TerrainSectionCache levelCache = TerrainSectionCache.getCache((ServerLevel) level);
+        ChunkMaxHeightCache levelCache = ChunkMaxHeightCache.getCache((ServerLevel) level);
         levelCache.cacheSectionHeight((LevelChunk) chunk);
     }
 }
