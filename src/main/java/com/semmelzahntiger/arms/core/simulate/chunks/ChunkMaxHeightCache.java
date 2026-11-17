@@ -36,7 +36,7 @@ public class ChunkMaxHeightCache {
         int height = chunk.getSectionYFromSectionIndex(idx);
         return (short) (SectionPos.sectionToBlockCoord(height) + 16);
     }
-    public void cacheSectionHeight(LevelChunk chunk) {
+    public void cacheFromLoadedChunk(LevelChunk chunk) {
         Heightmap heightmap = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE);
         int maxHeight = chunk.getMinBuildHeight();
         for (int x = 0; x < 16; x++) {

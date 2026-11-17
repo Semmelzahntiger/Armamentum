@@ -50,9 +50,9 @@ public class SimulateEvents {
         server.getPlayerList().broadcastSystemMessage(Component.literal("Unloading Chunk at: " + levelChunk.getPos()), false);
         LogUtil.getLogger().info("Unloading Chunk at: {}", levelChunk.getPos());
         ChunkMaxHeightCache chunkMaxHeightCache = ChunkMaxHeightCache.getCache(serverLevel);
-        chunkMaxHeightCache.cacheSectionHeight(levelChunk);
+        chunkMaxHeightCache.cacheFromLoadedChunk(levelChunk);
         ChunkBlockHeightCache chunkBlockHeightCache = ChunkBlockHeightCache.getCache(serverLevel);
-        chunkBlockHeightCache.cacheChunkHeights(chunk.getPos());
+        chunkBlockHeightCache.cacheFromLoadedChunk(levelChunk);
     }
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Pre event) {
