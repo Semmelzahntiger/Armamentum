@@ -80,6 +80,9 @@ public class ChunkBlockHeightCache {
             cache.put(cacheData.pos, cacheData.heightData);
         }
     }
+    public int getProcessesInQueue() {
+        return cacheQueue.size();
+    }
 
     private short testForHeight(Vec3 position) {
         int bx = Mth.floor(position.x);

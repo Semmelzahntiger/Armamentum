@@ -16,6 +16,7 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import util.LogUtil;
 
 public class SimulateEvents {
+    //WIP, test other stuff first
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Pre event) {
 //        Entity entity = event.getEntity();
@@ -62,6 +63,9 @@ public class SimulateEvents {
         }
         ChunkBlockHeightCache chunkBlockHeightCache = ChunkBlockHeightCache.getCache(serverLevel);
         chunkBlockHeightCache.tickProcessQueue();
+        if(chunkBlockHeightCache.getProcessesInQueue() != 0) {
+            serverLevel.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Processes In Queue: " + chunkBlockHeightCache.getProcessesInQueue()), false);
+        }
 //        SimulationManager manager = serverLevel.getDataStorage().get(SimulationManager.FACTORY, SimulationManager.SAVED_DATA_ID);
 //        if(manager == null) {
 //            ResourceKey<Level> key = level.dimension();
