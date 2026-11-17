@@ -11,6 +11,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +49,12 @@ public class ChunkMaxHeightCache {
     public static @NotNull ChunkMaxHeightCache getCache(ServerLevel level) {
         return SERVER_CACHE.computeIfAbsent(level, k -> new ChunkMaxHeightCache(level));
     }
+    public static Collection<ChunkMaxHeightCache> getCaches() {
+        return SERVER_CACHE.values();
+    }
+    public static void clearCache() {
+        SERVER_CACHE.clear();
+    }
     public SimulatedCollisionResult testForCollision(Vec3 pos) {
         ChunkPos chunkPos = new ChunkPos(MiscUtil.toBlockPos(pos));
         short highestSectionHeight = getHighestSectionCoordinateOfChunk(chunkPos.x, chunkPos.z);
@@ -62,5 +69,8 @@ public class ChunkMaxHeightCache {
             collisionResult = SimulatedCollisionResult.HIT;
         }
         return collisionResult;
+    }
+    public Long2ShortOpenHashMap getSectionHeights() {
+        return sectionHeights;
     }
 }

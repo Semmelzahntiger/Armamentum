@@ -11,18 +11,30 @@ import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 // Level 2 Cache of the Simulation System. Checks each individual column in the chunk if the shell is below that
-public class ChunkHighestBlockCache {
+public class ChunkBlockHeightCache {
     public static final int DATA_VER = SharedConstants.getCurrentVersion().getDataVersion().getVersion();
+
+    private static final Map<ServerLevel, ChunkBlockHeightCache> cacheMap = new HashMap<>();
+
 
     private final LRUCappedMap<ChunkPos, short[]> cache = new LRUCappedMap<>(512);
     private final ConcurrentLinkedQueue<CacheData> cacheQueue = new ConcurrentLinkedQueue<>();
 
-    public void cacheChunkHeights(ServerLevel level, ChunkPos pos) {
+    private final ServerLevel level;
+
+    public ChunkBlockHeightCache(ServerLevel level) {
+        this.level = level;
+    }
+
+    public void cacheChunkHeights(ChunkPos pos) {
         CompletableFuture<Optional<CompoundTag>> tag = level.getChunkSource().chunkMap.read(pos);
         tag.thenAccept(chunkOptional ->
                 chunkOptional.ifPresent(chunkTag -> {
@@ -79,5 +91,22 @@ public class ChunkHighestBlockCache {
             return SimulatedCollisionResult.HIT;
         }
     }
+    public Collection<Map.Entry<ChunkPos, short[]>> getCacheEntries() {
+        return cache.entrySet();
+    }
+    public Collection<ChunkPos> getCachedPositions() {
+        return cache.keySet();
+    }
+
+    public static ChunkBlockHeightCache getCache(ServerLevel level) {
+        return cacheMap.computeIfAbsent(level, ChunkBlockHeightCache::new);
+    }
+    public static Collection<ChunkBlockHeightCache> getCaches() {
+        return cacheMap.values();
+    }
+    public static void clearCache() {
+        cacheMap.clear();
+    }
+
     private record CacheData(ChunkPos pos, short[] heightData) {}
 }
